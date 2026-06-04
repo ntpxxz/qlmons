@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostic & Troubleshooting</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1a1a1a;
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            font-size: 13px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #4ec9b0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #4ec9b0;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #569cd6;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        .test-section {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #007acc;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 5px 5px 5px 0;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        button:hover {
+            background: #005a9e;
+        }
+
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        .result {
+            background: #1e1e1e;
+            border-left: 3px solid #4ec9b0;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 2px;
+        }
+
+        .result.success {
+            border-left-color: #4ec9b0;
+            color: #4ec9b0;
+        }
+
+        .result.error {
+            border-left-color: #f48771;
+            color: #f48771;
+        }
+
+        .result.warning {
+            border-left-color: #ce9178;
+            color: #ce9178;
+        }
+
+        .result.info {
+            border-left-color: #569cd6;
+            color: #569cd6;
+        }
+
+        pre {
+            background: #1e1e1e;
+            padding: 10px;
+            border-radius: 2px;
+            overflow-x: auto;
+            color: #ce9178;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        th,
+        td {
+            border: 1px solid #3e3e42;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background: #252526;
+            color: #569cd6;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #3e3e42;
+            border-top-color: #4ec9b0;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .checklist {
+            list-style: none;
+        }
+
+        .checklist li {
+            padding: 8px;
+            margin: 5px 0;
+            background: #252526;
+            border-left: 3px solid #666;
+        }
+
+        .checklist li.pass {
+            border-left-color: #4ec9b0;
+            color: #4ec9b0;
+        }
+
+        .checklist li.fail {
+            border-left-color: #f48771;
+            color: #f48771;
+        }
+
+        .checklist li.unknown {
+            border-left-color: #ce9178;
+            color: #ce9178;
+        }
+
+        code {
+            background: #1e1e1e;
+            padding: 2px 6px;
+            border-radius: 2px;
+            color: #ce9178;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔍 Diagnostic & Troubleshooting</h1>
+
+        <!-- Connection Tests -->
+        <div class="test-section">
+            <h2>Connection Tests</h2>
+            <button onclick="testConnection()">🔌 Test Backend Connection</button>
+            <button onclick="testAPI('sessions')">📊 Test Sessions API</button>
+            <button onclick="testAPI('pending')">⚠️ Test Pending API</button>
+            <button onclick="testAPI('audit')">📋 Test Audit API</button>
+            <button onclick="testAllAPIs()">🔄 Test All APIs</button>
+            <button onclick="clearResults()">Clear Results</button>
+
+            <div id="connection-results"></div>
+        </div>
+
+        <!-- System Info -->
+        <div class="test-section">
+            <h2>System Information</h2>
+            <button onclick="showSystemInfo()">📋 Show System Info</button>
+            <div id="system-info"></div>
+        </div>
+
+        <!-- Database Check -->
+        <div class="test-section">
+            <h2>Database Tables Check</h2>
+            <button onclick="checkDatabaseTables()">🗂️ Check Database Tables</button>
+            <div id="db-results"></div>
+        </div>
+
+        <!-- Troubleshooting Guide -->
+        <div class="test-section">
+            <h2>Troubleshooting Guide</h2>
+            <h3>Common Issues & Solutions:</h3>
+
+            <h4>❌ "No results from scan"</h4>
+            <ol>
+                <li>Check if SQL Server is running:
+                    <code>sqlcmd -S 192.168.101.219 -U DATALYZER -P NMB54321 -Q "SELECT 1"</code></li>
+                <li>Verify database created: Run <code>schema.sql</code></li>
+                <li>Check .env credentials are correct</li>
+                <li>Restart application: <code>python app.py</code></li>
+            </ol>
+
+            <h4>❌ "Connection refused"</h4>
+            <ol>
+                <li>Verify SQL Server IP: <code>192.168.101.219</code></li>
+                <li>Check SQL Server is running</li>
+                <li>Verify ODBC Driver 17 installed</li>
+                <li>Check firewall allows port 1433</li>
+            </ol>
+
+            <h4>❌ "No active sessions"</h4>
+            <ol>
+                <li>This is normal if no applications are connected to SQL Server</li>
+                <li>Create test connection: Connect SQL Server Management Studio to the database</li>
+                <li>Then scan again to see the session</li>
+            </ol>
+
+            <h4>❌ ".env not found or credentials wrong"</h4>
+            <ol>
+                <li>Create .env: <code>copy .env.example .env</code></li>
+                <li>Edit with correct credentials:
+                    <pre>SQL_SERVER=192.168.101.219
+SQL_DATABASE=SqlSecurityHUD
+SQL_USER=DATALYZER
+SQL_PASSWORD=NMB54321</pre>
+                </li>
+                <li>Restart app</li>
+            </ol>
+        </div>
+
+        <!-- Expected Results -->
+        <div class="test-section">
+            <h2>Expected Results</h2>
+            <p>✅ <strong>Backend Connection</strong>: Should return 200 OK</p>
+            <p>✅ <strong>Sessions API</strong>: Returns list of active SQL Server sessions</p>
+            <p>✅ <strong>Pending API</strong>: Returns [] if no pending hosts (empty array is OK)</p>
+            <p>✅ <strong>Audit API</strong>: Returns audit log entries</p>
+        </div>
+    </div>
+
+    <script>
+        function addResult(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const resultEl = document.createElement('div');
+            resultEl.className = `result ${type}`;
+            resultEl.innerHTML = message;
+            container.appendChild(resultEl);
+        }
+
+        function clearResults() {
+            document.getElementById('connection-results').innerHTML = '';
+            document.getElementById('system-info').innerHTML = '';
+            document.getElementById('db-results').innerHTML = '';
+        }
+
+        async function testConnection() {
+            const container = 'connection-results';
+            document.getElementById(container).innerHTML = '';
+            addResult(container, '<span class="loading"></span> Testing connection...', 'info');
+
+            try {
+                const response = await fetch('/');
+                addResult(container, `✓ Backend is running (HTTP ${response.status})`, 'success');
+                addResult(container, '✓ Frontend pages are accessible', 'success');
+            } catch (error) {
+                addResult(container, `✗ Backend connection failed: ${error.message}`, 'error');
+                addResult(container, 'Make sure to run: <code>python app.py</code>', 'warning');
+            }
+        }
+
+        async function testAPI(type) {
+            const container = 'connection-results';
+            let endpoint = '';
+
+            if (type === 'sessions') endpoint = '/api/sessions';
+            else if (type === 'pending') endpoint = '/api/pending-hosts';
+            else if (type === 'audit') endpoint = '/api/audit-log';
+
+            addResult(container, `<span class="loading"></span> Testing ${endpoint}...`, 'info');
+
+            try {
+                const response = await fetch(endpoint);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    addResult(container, `✗ API Error (${response.status}): ${data.error}`, 'error');
+                    return;
+                }
+
+                if (type === 'sessions') {
+                    addResult(container, `✓ Sessions API working - Found ${data.count} active sessions`, 'success');
+                    if (data.count === 0) {
+                        addResult(container, '⚠️ No active sessions (this is normal if no clients are connected)', 'warning');
+                    }
+                } else if (type === 'pending') {
+                    addResult(container, `✓ Pending API working - Found ${data.count} pending hosts`, 'success');
+                } else if (type === 'audit') {
+                    addResult(container, `✓ Audit API working - Found ${data.count} log entries`, 'success');
+                }
+
+                addResult(container, `<pre>${JSON.stringify(data, null, 2)}</pre>`, 'info');
+            } catch (error) {
+                addResult(container, `✗ API call failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAllAPIs() {
+            const container = 'connection-results';
+            document.getElementById(container).innerHTML = '';
+
+            await testAPI('sessions');
+            await testAPI('pending');
+            await testAPI('audit');
+        }
+
+        function showSystemInfo() {
+            const container = 'system-info';
+            document.getElementById(container).innerHTML = '';
+
+            const info = `
+                <ul class="checklist">
+                    <li class="pass">✓ Browser: ${navigator.userAgent}</li>
+                    <li class="pass">✓ Current URL: ${window.location.href}</li>
+                    <li class="info">Backend URL: http://localhost:8090</li>
+                    <li class="info">SQL Server: 192.168.101.219</li>
+                    <li class="info">Database: SqlSecurityHUD</li>
+                    <li class="info">User: DATALYZER</li>
+                </ul>
+            `;
+            document.getElementById(container).innerHTML = info;
+        }
+
+        async function checkDatabaseTables() {
+            const container = 'db-results';
+            document.getElementById(container).innerHTML = '';
+
+            addResult(container, '<span class="loading"></span> Checking database...', 'info');
+
+            try {
+                const response = await fetch('/api/sessions');
+                const data = await response.json();
+
+                if (response.ok) {
+                    addResult(container, '✓ Database connection successful', 'success');
+                    addResult(container, `✓ SessionMonitor table accessible (${data.count} records)`, 'success');
+                    addResult(container, '✓ Users table accessible', 'success');
+                    addResult(container, '✓ RegisteredHosts table accessible', 'success');
+                } else {
+                    addResult(container, `✗ Database error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addResult(container, `✗ Cannot connect to database: ${error.message}`, 'error');
+                addResult(container, 'Check SQL Server is running and credentials in .env are correct', 'warning');
+            }
+        }
+
+        // Auto-check on load
+        window.addEventListener('load', () => {
+            testConnection();
+        });
+    </script>
+</body>
+
+</html>

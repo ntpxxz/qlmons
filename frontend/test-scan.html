@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Server Scan Test</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #050914;
+            --panel-bg: rgba(0, 20, 40, 0.4);
+            --text-main: #e0f7fa;
+            --text-dim: #6b8eb0;
+            --primary-cyan: #00e5ff;
+            --safe-green: #00ff88;
+            --alert-red: #ff3366;
+            --font-head: 'Rajdhani', sans-serif;
+            --font-mono: 'Roboto Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-head);
+            padding: 20px;
+            font-size: 13px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: var(--primary-cyan);
+            text-shadow: 0 0 10px var(--primary-cyan);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .scan-panel {
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            background: rgba(0, 20, 40, 0.4);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 2px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: rgba(0, 229, 255, 0.1);
+            border: 1px solid var(--primary-cyan);
+            color: var(--primary-cyan);
+            font-family: var(--font-head);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: var(--primary-cyan);
+            color: var(--bg-dark);
+            box-shadow: 0 0 15px var(--primary-cyan);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status {
+            padding: 15px;
+            border-left: 3px solid var(--primary-cyan);
+            background: rgba(0, 229, 255, 0.05);
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.success {
+            border-left-color: var(--safe-green);
+            background: rgba(0, 255, 136, 0.05);
+            color: var(--safe-green);
+        }
+
+        .status.error {
+            border-left-color: var(--alert-red);
+            background: rgba(255, 51, 102, 0.05);
+            color: var(--alert-red);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid var(--primary-cyan-dim);
+            border-top-color: var(--primary-cyan);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .result-section {
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            background: rgba(0, 20, 40, 0.4);
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            color: var(--primary-cyan);
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 12px;
+        }
+
+        .stat-row {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            padding: 10px;
+            border-bottom: 1px dashed rgba(0, 229, 255, 0.1);
+            font-family: var(--font-mono);
+            font-size: 12px;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: var(--text-main);
+            word-break: break-all;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        th {
+            background: rgba(0, 229, 255, 0.1);
+            color: var(--primary-cyan);
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 229, 255, 0.3);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px dashed rgba(0, 229, 255, 0.1);
+            color: var(--text-main);
+        }
+
+        tr:hover {
+            background: rgba(0, 229, 255, 0.05);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-dim);
+        }
+
+        .highlight-cyan {
+            color: var(--primary-cyan);
+        }
+
+        .highlight-green {
+            color: var(--safe-green);
+        }
+
+        .json-output {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            padding: 15px;
+            border-radius: 2px;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        pre {
+            margin: 0;
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 SQL Server Activity Monitor - Test Scan</h1>
+
+        <div class="scan-panel">
+            <h2 style="color: var(--primary-cyan); margin-bottom: 15px; font-size: 14px;">SCAN_CONTROLS</h2>
+            <div class="button-group">
+                <button onclick="scanSessions()">📊 Scan Active Sessions</button>
+                <button onclick="scanPendingHosts()">⚠️ Scan Pending Hosts</button>
+                <button onclick="scanAuditLog()">📋 Scan Audit Log</button>
+                <button onclick="scanAll()">🔄 Scan All Data</button>
+                <button onclick="clearResults()">🗑️ Clear Results</button>
+            </div>
+
+            <div id="status" class="status">
+                <span id="status-text"></span>
+            </div>
+        </div>
+
+        <!-- Sessions Results -->
+        <div class="result-section" id="sessions-section" style="display: none;">
+            <div class="result-title">SESSIONS_DATA</div>
+            <div class="stat-row">
+                <span class="stat-label">Total Sessions:</span>
+                <span class="stat-value highlight-green" id="sessions-count">0</span>
+            </div>
+            <div style="overflow-x: auto;">
+                <table id="sessions-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>SESSION_ID</th>
+                            <th>LOGIN_NAME</th>
+                            <th>COMPUTER_NAME</th>
+                            <th>IP_ADDRESS</th>
+                            <th>APPLICATION</th>
+                            <th>CONNECTED_SINCE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sessions-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pending Hosts Results -->
+        <div class="result-section" id="pending-section" style="display: none;">
+            <div class="result-title">PENDING_HOSTS_DATA</div>
+            <div class="stat-row">
+                <span class="stat-label">Pending Hosts:</span>
+                <span class="stat-value highlight-cyan" id="pending-count">0</span>
+            </div>
+            <div style="overflow-x: auto;">
+                <table id="pending-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>HOST_NAME</th>
+                            <th>IP_ADDRESS</th>
+                            <th>USER_ATTEMPTED</th>
+                            <th>LAST_ATTEMPT</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pending-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Audit Log Results -->
+        <div class="result-section" id="audit-section" style="display: none;">
+            <div class="result-title">AUDIT_LOG_DATA</div>
+            <div class="stat-row">
+                <span class="stat-label">Log Entries:</span>
+                <span class="stat-value" id="audit-count">0</span>
+            </div>
+            <div style="overflow-x: auto;">
+                <table id="audit-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>ACTION</th>
+                            <th>DETAILS</th>
+                            <th>TIMESTAMP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="audit-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- JSON Output -->
+        <div class="result-section" id="json-section" style="display: none;">
+            <div class="result-title">RAW_JSON_OUTPUT</div>
+            <div class="json-output">
+                <pre id="json-output"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showStatus(message, type = 'info') {
+            const statusEl = document.getElementById('status');
+            const textEl = document.getElementById('status-text');
+            statusEl.className = `status show ${type}`;
+            textEl.innerHTML = message;
+        }
+
+        function formatTimestamp(isoString) {
+            if (!isoString) return 'N/A';
+            const date = new Date(isoString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            const ms = String(date.getMilliseconds()).padStart(3, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${ms}`;
+        }
+
+        async function scanSessions() {
+            showStatus('<span class="loading"></span> Scanning active sessions...');
+
+            try {
+                const response = await fetch('/api/sessions');
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.error);
+
+                const sessions = data.sessions || [];
+                document.getElementById('sessions-count').textContent = sessions.length;
+
+                const tbody = document.getElementById('sessions-tbody');
+                tbody.innerHTML = '';
+
+                sessions.forEach((session, idx) => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td>${idx + 1}</td>
+                        <td><span class="highlight-cyan">${session.session_id}</span></td>
+                        <td><span class="highlight-green">${session.login_name}</span></td>
+                        <td>${session.host_name}</td>
+                        <td>${session.ip_address}</td>
+                        <td style="color: var(--text-dim); font-size: 10px;">${session.application}</td>
+                        <td>${formatTimestamp(session.login_time)}</td>
+                    `;
+                });
+
+                document.getElementById('sessions-section').style.display = 'block';
+                document.getElementById('json-section').style.display = 'block';
+                document.getElementById('json-output').textContent = JSON.stringify(data, null, 2);
+
+                showStatus(`✓ Found <strong>${sessions.length}</strong> active sessions`, 'success');
+            } catch (error) {
+                showStatus(`✗ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function scanPendingHosts() {
+            showStatus('<span class="loading"></span> Scanning pending hosts...');
+
+            try {
+                const response = await fetch('/api/pending-hosts');
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.error);
+
+                const pending = data.pending_hosts || [];
+                document.getElementById('pending-count').textContent = pending.length;
+
+                const tbody = document.getElementById('pending-tbody');
+                tbody.innerHTML = '';
+
+                if (pending.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="no-data">No pending hosts</td></tr>';
+                } else {
+                    pending.forEach((host, idx) => {
+                        const row = tbody.insertRow();
+                        row.innerHTML = `
+                            <td>${idx + 1}</td>
+                            <td><span class="highlight-cyan">${host.host_name}</span></td>
+                            <td>${host.ip_address}</td>
+                            <td>${host.user_attempted}</td>
+                            <td>${formatTimestamp(host.last_attempt)}</td>
+                            <td>${host.status}</td>
+                        `;
+                    });
+                }
+
+                document.getElementById('pending-section').style.display = 'block';
+                document.getElementById('json-section').style.display = 'block';
+                document.getElementById('json-output').textContent = JSON.stringify(data, null, 2);
+
+                showStatus(`✓ Found <strong>${pending.length}</strong> pending hosts`, pending.length > 0 ? 'error' : 'success');
+            } catch (error) {
+                showStatus(`✗ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function scanAuditLog() {
+            showStatus('<span class="loading"></span> Scanning audit log...');
+
+            try {
+                const response = await fetch('/api/audit-log?limit=50');
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.error);
+
+                const logs = data.logs || [];
+                document.getElementById('audit-count').textContent = logs.length;
+
+                const tbody = document.getElementById('audit-tbody');
+                tbody.innerHTML = '';
+
+                logs.forEach((log, idx) => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td>${idx + 1}</td>
+                        <td><span class="highlight-green">${log.action}</span></td>
+                        <td style="color: var(--text-dim); font-size: 10px;">${log.details}</td>
+                        <td>${formatTimestamp(log.timestamp)}</td>
+                    `;
+                });
+
+                document.getElementById('audit-section').style.display = 'block';
+                document.getElementById('json-section').style.display = 'block';
+                document.getElementById('json-output').textContent = JSON.stringify(data, null, 2);
+
+                showStatus(`✓ Found <strong>${logs.length}</strong> audit log entries`, 'success');
+            } catch (error) {
+                showStatus(`✗ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function scanAll() {
+            showStatus('<span class="loading"></span> Scanning all data...');
+            await scanSessions();
+            await scanPendingHosts();
+            await scanAuditLog();
+            showStatus('✓ All scans completed', 'success');
+        }
+
+        function clearResults() {
+            document.getElementById('sessions-section').style.display = 'none';
+            document.getElementById('pending-section').style.display = 'none';
+            document.getElementById('audit-section').style.display = 'none';
+            document.getElementById('json-section').style.display = 'none';
+            document.getElementById('status').className = 'status';
+        }
+    </script>
+</body>
+</html>

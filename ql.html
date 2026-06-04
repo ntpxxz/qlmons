@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Security HUD - Focused Data</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Cyberpunk Color Palette */
+            --bg-dark: #050914;
+            --panel-bg: rgba(0, 20, 40, 0.4);
+            --text-main: #e0f7fa;
+            --text-dim: #6b8eb0;
+            
+            --primary-cyan: #00e5ff;
+            --primary-cyan-dim: rgba(0, 229, 255, 0.3);
+            --safe-green: #00ff88;
+            --warn-yellow: #ffcc00;
+            --alert-red: #ff3366;
+            
+            --font-head: 'Rajdhani', sans-serif;
+            --font-mono: 'Roboto Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-head);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            font-size: 14px;
+            background-image: radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.03) 0%, transparent 60%);
+        }
+
+        /* --- Global Utility & Borders --- */
+        .hud-border {
+            border: 1px solid var(--primary-cyan-dim);
+            background: var(--panel-bg);
+            position: relative;
+            backdrop-filter: blur(4px);
+        }
+        .hud-border::before, .hud-border::after {
+            content: ''; position: absolute; width: 8px; height: 8px; border: 1px solid var(--primary-cyan);
+        }
+        .hud-border::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+        .hud-border::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+        .text-dim { color: var(--text-dim); }
+        .text-cyan { color: var(--primary-cyan); text-shadow: 0 0 5px var(--primary-cyan); }
+        .text-green { color: var(--safe-green); text-shadow: 0 0 5px var(--safe-green); }
+        .text-yellow { color: var(--warn-yellow); text-shadow: 0 0 5px var(--warn-yellow); }
+        .text-red { color: var(--alert-red); text-shadow: 0 0 5px var(--alert-red); }
+        
+        .slash-accent { margin: 0 5px; color: var(--primary-cyan); font-weight: normal; }
+
+        /* --- Top Navigation --- */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            margin-bottom: 10px;
+            border-top: 1px solid var(--primary-cyan-dim);
+            border-bottom: 1px solid var(--primary-cyan-dim);
+        }
+        .nav-left, .nav-center, .nav-right { display: flex; align-items: center; gap: 5px; }
+        .nav-btn {
+            border: 1px solid transparent;
+            padding: 4px 15px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--text-dim);
+            transition: 0.3s;
+        }
+        .nav-btn:hover { color: var(--primary-cyan); }
+        .nav-btn.active { border-color: var(--primary-cyan); color: var(--primary-cyan); font-weight: bold; background: rgba(0,229,255,0.1); }
+        .icon-box { border: 1px solid var(--primary-cyan-dim); color: var(--primary-cyan); width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+
+        /* --- Main Dashboard Layout --- */
+        .dashboard-container {
+            flex-grow: 1;
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            gap: 15px;
+            padding: 10px;
+            border: 1px solid var(--primary-cyan-dim);
+            position: relative;
+        }
+        
+        .bracket-tl, .bracket-tr, .bracket-bl, .bracket-br { position: absolute; width: 15px; height: 15px; border: 2px solid var(--primary-cyan); }
+        .bracket-tl { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+        .bracket-tr { top: -2px; right: -2px; border-left: none; border-bottom: none; }
+        .bracket-bl { bottom: -2px; left: -2px; border-right: none; border-top: none; }
+        .bracket-br { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+
+        .col { display: flex; flex-direction: column; gap: 15px; overflow: hidden; }
+
+        /* --- Common Panel Header --- */
+        .panel-header { 
+            text-transform: uppercase; font-weight: 600; font-size: 13px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 8px; border-bottom: 1px solid var(--primary-cyan-dim);
+            margin-bottom: 10px; color: var(--primary-cyan); letter-spacing: 1px;
+        }
+
+        /* --- Left Column --- */
+        .dash-title { padding: 15px; font-size: 18px; font-weight: 600; display: flex; align-items: center; color: var(--primary-cyan);}
+        
+        .entities-box { padding: 15px; display: flex; justify-content: space-around; text-align: center; }
+        .entity-stat h2 { font-size: 32px; font-weight: 500; margin-bottom: 5px; color: var(--text-main); line-height: 1;}
+        .entity-stat p { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--primary-cyan); line-height: 1.2;}
+
+        .whitelist-box { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; overflow: hidden;}
+        .whitelist-list { overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 8px; padding-right: 5px; }
+        .whitelist-item { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 12px; padding: 6px; background: rgba(0, 255, 136, 0.05); border-left: 2px solid var(--safe-green); }
+        .whitelist-item .host { color: var(--text-main); }
+        .whitelist-item .status { color: var(--safe-green); font-size: 10px;}
+
+        /* --- Middle Column (Pending Queue) --- */
+        .queue-box { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; overflow: hidden;}
+        .queue-list { overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 12px; padding-right: 5px;}
+        
+        .pending-card { 
+            border: 1px solid var(--warn-yellow); background: rgba(255, 204, 0, 0.05);
+            padding: 12px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .pending-info { display: flex; flex-direction: column; gap: 4px; }
+        .pending-title { font-size: 16px; font-weight: 600; color: var(--warn-yellow); }
+        .pending-detail { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); }
+        .pending-detail span { color: var(--text-main); }
+        
+        .action-buttons { display: flex; gap: 8px; }
+        .btn-action { 
+            border: 1px solid currentColor; padding: 6px 12px; font-size: 12px; font-weight: 600;
+            text-transform: uppercase; cursor: pointer; transition: 0.3s; background: rgba(0,0,0,0.5);
+        }
+        .btn-action.approve { color: var(--safe-green); }
+        .btn-action.approve:hover { background: var(--safe-green); color: var(--bg-dark); box-shadow: 0 0 10px var(--safe-green);}
+        .btn-action.block { color: var(--alert-red); }
+        .btn-action.block:hover { background: var(--alert-red); color: var(--bg-dark); box-shadow: 0 0 10px var(--alert-red);}
+
+        /* --- Right Column (Activity Feed) --- */
+        .feed-box { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; overflow: hidden;}
+        .feed-list { overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 15px; padding-right: 5px;}
+        .feed-item { display: flex; gap: 10px; align-items: flex-start; padding-bottom: 10px; border-bottom: 1px dashed rgba(0, 229, 255, 0.1); }
+        .feed-icon { width: 16px; height: 16px; display: flex; justify-content: center; align-items: center; font-size: 10px; border: 1px solid currentColor;}
+        .feed-content p { font-size: 13px; font-family: var(--font-mono); line-height: 1.3;}
+        .feed-time { font-size: 10px; color: var(--text-dim); margin-top: 4px; font-family: var(--font-head);}
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--primary-cyan-dim); }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <div class="nav-left">
+            <div class="icon-box">▤</div>
+            <div class="icon-box">△</div>
+        </div>
+        <div class="nav-center">
+            <div class="nav-btn active">△ Action_Center</div>
+            <div class="nav-btn">〰 Host_Registry</div>
+            <div class="nav-btn">◰ Query_Audit</div>
+        </div>
+        <div class="nav-right">
+            <div class="nav-btn text-cyan">👤 SYSADMIN ⏷</div>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="bracket-tl"></div><div class="bracket-tr"></div><div class="bracket-bl"></div><div class="bracket-br"></div>
+        
+        <div class="col col-left">
+            <div class="hud-border dash-title">
+                SQL_SEC_NODE <span class="slash-accent">//</span> <span class="text-dim" id="current-time">00:00:00 Z</span>
+            </div>
+            
+            <div class="hud-border entities-box">
+                <div class="entity-stat">
+                    <h2 class="text-green" id="active-count">142</h2>
+                    <p>ACTIVE_HOSTS<br>WHITELISTED</p>
+                </div>
+                <div class="entity-stat">
+                    <h2 class="text-yellow" id="pending-count">02</h2>
+                    <p>PENDING_HOSTS<br>ACTION_REQD</p>
+                </div>
+            </div>
+
+            <div class="hud-border whitelist-box">
+                <div class="panel-header">
+                    <span>WHITELISTED_HOSTS</span>
+                    <span class="text-dim">LIVE</span>
+                </div>
+                <div class="whitelist-list" id="whitelist-feed">
+                    <div class="whitelist-item">
+                        <span class="host">ADMIN-WORKSTATION</span>
+                        <span class="status">[OK]</span>
+                    </div>
+                    <div class="whitelist-item">
+                        <span class="host">SERVER-APP-01</span>
+                        <span class="status">[OK]</span>
+                    </div>
+                    <div class="whitelist-item">
+                        <span class="host">SERVER-APP-02</span>
+                        <span class="status">[OK]</span>
+                    </div>
+                    <div class="whitelist-item">
+                        <span class="host">HR-FRONTEND</span>
+                        <span class="status">[OK]</span>
+                    </div>
+                    <div class="whitelist-item">
+                        <span class="host">BACKUP-NODE</span>
+                        <span class="status">[OK]</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col col-mid">
+            <div class="hud-border queue-box">
+                <div class="panel-header">
+                    <span class="text-yellow" style="text-shadow: 0 0 5px var(--warn-yellow);">SECURITY_ALERTS // PENDING_QUEUE</span>
+                </div>
+                
+                <div class="queue-list" id="queue-feed">
+                    
+                    <div class="pending-card" id="card-1">
+                        <div class="pending-info">
+                            <div class="pending-title">Unregistered Login Attempt</div>
+                            <div class="pending-detail">HOST: <span>PC-SOMCHAI</span> // IP: <span>192.168.1.45</span></div>
+                            <div class="pending-detail">USER: <span>sa_account</span></div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action approve" onclick="resolveHost('card-1', 'PC-SOMCHAI', 'approve')">✓ APPROVE</button>
+                            <button class="btn-action block" onclick="resolveHost('card-1', 'PC-SOMCHAI', 'block')">✗ BLOCK</button>
+                        </div>
+                    </div>
+
+                    <div class="pending-card" id="card-2">
+                        <div class="pending-info">
+                            <div class="pending-title">Unregistered Login Attempt</div>
+                            <div class="pending-detail">HOST: <span>UNKNOWN-DEV</span> // IP: <span>10.0.0.99</span></div>
+                            <div class="pending-detail">USER: <span>Old_Shared_User</span></div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action approve" onclick="resolveHost('card-2', 'UNKNOWN-DEV', 'approve')">✓ APPROVE</button>
+                            <button class="btn-action block" onclick="resolveHost('card-2', 'UNKNOWN-DEV', 'block')">✗ BLOCK</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col col-right">
+            <div class="hud-border feed-box">
+                <div class="panel-header">
+                    <span>AUDIT_LOG_FEED</span>
+                    <span class="text-dim">ALL_EVENTS</span>
+                </div>
+                
+                <div class="feed-list" id="audit-feed">
+                    <div class="feed-item">
+                        <div class="feed-icon text-cyan">▤</div>
+                        <div class="feed-content">
+                            <p class="text-dim">Routine_Scan // Background scanner updated LastSeen status for 142 hosts.</p>
+                            <div class="feed-time">30_minutes_ago <span class="slash-accent">//</span> System_Log</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Update current time continuously
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('current-time').textContent = now.toISOString().split('T')[1].substring(0,8) + " Z";
+        }, 1000);
+
+        // Core UI Logic for Approving/Blocking
+        let activeHosts = 142;
+        let pendingHosts = 2;
+
+        function resolveHost(cardId, hostName, action) {
+            // Remove the card from the queue
+            const card = document.getElementById(cardId);
+            if(card) {
+                card.style.opacity = '0';
+                setTimeout(() => card.remove(), 300);
+            }
+
+            // Update Counters
+            pendingHosts--;
+            document.getElementById('pending-count').textContent = pendingHosts.toString().padStart(2, '0');
+
+            const auditFeed = document.getElementById('audit-feed');
+            const whitelistFeed = document.getElementById('whitelist-feed');
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = 'feed-item';
+
+            if (action === 'approve') {
+                activeHosts++;
+                document.getElementById('active-count').textContent = activeHosts;
+
+                // Add to Whitelist Panel
+                const newItem = document.createElement('div');
+                newItem.className = 'whitelist-item';
+                newItem.innerHTML = `<span class="host">${hostName}</span><span class="status">[OK]</span>`;
+                whitelistFeed.insertBefore(newItem, whitelistFeed.firstChild);
+
+                // Add to Audit Log
+                logEntry.innerHTML = `
+                    <div class="feed-icon text-green">✓</div>
+                    <div class="feed-content">
+                        <p><strong class="text-green">Admin_Override //</strong> Host '${hostName}' added to RegisteredHosts.</p>
+                        <div class="feed-time">Just now <span class="slash-accent">//</span> Whitelisted</div>
+                    </div>
+                `;
+            } else {
+                // Add to Audit Log
+                logEntry.innerHTML = `
+                    <div class="feed-icon text-red">✗</div>
+                    <div class="feed-content">
+                        <p><strong class="text-red">Admin_Override //</strong> Connection from '${hostName}' terminated manually.</p>
+                        <div class="feed-time">Just now <span class="slash-accent">//</span> Security_Enforced</div>
+                    </div>
+                `;
+            }
+            
+            // Insert log at the top
+            auditFeed.insertBefore(logEntry, auditFeed.firstChild);
+
+            // If queue is empty, show a safe message
+            if (pendingHosts === 0) {
+                setTimeout(() => {
+                    const queueList = document.getElementById('queue-feed');
+                    queueList.innerHTML = `<div style="text-align:center; color:var(--safe-green); font-size:16px; margin-top:50px; text-shadow:0 0 10px var(--safe-green);">ALL THREATS RESOLVED // SYSTEM SECURE</div>`;
+                }, 350);
+            }
+        }
+    </script>
+</body>
+</html>
