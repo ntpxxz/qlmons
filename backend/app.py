@@ -741,6 +741,180 @@ def remove_from_blacklist():
         conn.close()
 
 
+@app.route('/api/databases', methods=['GET'])
+def get_all_databases():
+    """Get list of all databases in SQL Server instance"""
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({'error': 'Database connection failed'}), 500
+
+    try:
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            SELECT
+                name,
+                database_id,
+                state_desc,
+                recovery_model_desc,
+                create_date
+            FROM sys.databases
+            WHERE database_id > 4
+            ORDER BY name
+        ''')
+
+        databases = []
+        for row in cursor.fetchall():
+            databases.append({
+                'name': row[0],
+                'database_id': row[1],
+                'state': row[2],
+                'recovery_model': row[3],
+                'create_date': row[4].isoformat() if row[4] else None
+            })
+
+        return jsonify({
+            'success': True,
+            'count': len(databases),
+            'databases': databases
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Get databases error: {e}")
+        return jsonify({'error': 'Server error'}), 500
+    finally:
+        conn.close()
+
+
+@app.route('/api/sessions/all-databases', methods=['GET'])
+def get_sessions_all_databases():
+    """Get active sessions from ALL databases in SQL Server"""
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({'error': 'Database connection failed'}), 500
+
+    try:
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            SELECT
+                s.session_id,
+                s.login_name,
+                s.host_name,
+                c.client_net_address,
+                s.program_name,
+                s.login_time,
+                s.last_request_start_time,
+                db_name(s.database_id) as database_name,
+                s.database_id,
+                s.status,
+                CASE WHEN r.HostID IS NOT NULL THEN 1 ELSE 0 END as is_whitelisted
+            FROM sys.dm_exec_sessions s
+            LEFT JOIN sys.dm_exec_connections c ON s.session_id = c.session_id
+            LEFT JOIN RegisteredHosts r ON s.host_name = r.HostName AND r.IsWhitelisted = 1
+            WHERE s.session_id > 50
+            ORDER BY db_name(s.database_id), s.login_time DESC
+        ''')
+
+        sessions = []
+        for row in cursor.fetchall():
+            session_id, login_name, host_name, ip_address, app_name, login_time, last_request, db_name, db_id, status, is_whitelisted = row
+            sessions.append({
+                'session_id': session_id,
+                'login_name': login_name or 'N/A',
+                'host_name': host_name or 'N/A',
+                'ip_address': ip_address or 'N/A',
+                'application': app_name or '.Net SqlClient Data Provider',
+                'login_time': login_time.isoformat() if login_time else None,
+                'last_request': last_request.isoformat() if last_request else None,
+                'database_name': db_name or 'N/A',
+                'database_id': db_id,
+                'status': status,
+                'is_whitelisted': bool(is_whitelisted)
+            })
+
+        return jsonify({
+            'success': True,
+            'count': len(sessions),
+            'sessions': sessions
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Get sessions all databases error: {e}")
+        return jsonify({'error': 'Server error'}), 500
+    finally:
+        conn.close()
+
+
+@app.route('/api/metrics/by-database', methods=['GET'])
+def get_metrics_by_database():
+    """Get session metrics grouped by database"""
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({'error': 'Database connection failed'}), 500
+
+    try:
+        cursor = conn.cursor()
+
+        # Get sessions per database
+        cursor.execute('''
+            SELECT
+                db_name(s.database_id) as database_name,
+                COUNT(*) as session_count,
+                COUNT(DISTINCT s.login_name) as unique_users,
+                COUNT(DISTINCT s.host_name) as unique_hosts,
+                MIN(s.login_time) as oldest_session,
+                MAX(s.login_time) as newest_session
+            FROM sys.dm_exec_sessions s
+            WHERE s.session_id > 50
+            GROUP BY s.database_id
+            ORDER BY session_count DESC
+        ''')
+
+        metrics = []
+        for row in cursor.fetchall():
+            db_name, session_count, unique_users, unique_hosts, oldest, newest = row
+            metrics.append({
+                'database_name': db_name or 'Unknown',
+                'session_count': session_count,
+                'unique_users': unique_users,
+                'unique_hosts': unique_hosts,
+                'oldest_session': oldest.isoformat() if oldest else None,
+                'newest_session': newest.isoformat() if newest else None
+            })
+
+        # Get total stats
+        cursor.execute('''
+            SELECT
+                COUNT(*) as total_sessions,
+                COUNT(DISTINCT s.login_name) as total_users,
+                COUNT(DISTINCT s.host_name) as total_hosts,
+                COUNT(DISTINCT s.database_id) as total_databases
+            FROM sys.dm_exec_sessions s
+            WHERE s.session_id > 50
+        ''')
+
+        total_row = cursor.fetchone()
+        total_stats = {
+            'total_sessions': total_row[0],
+            'total_users': total_row[1],
+            'total_hosts': total_row[2],
+            'total_databases': total_row[3]
+        }
+
+        return jsonify({
+            'success': True,
+            'by_database': metrics,
+            'totals': total_stats
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Get metrics by database error: {e}")
+        return jsonify({'error': 'Server error'}), 500
+    finally:
+        conn.close()
+
+
 @app.route('/api/server-time', methods=['GET'])
 def get_server_time():
     """Return current server time in Thai timezone (UTC+7)"""
