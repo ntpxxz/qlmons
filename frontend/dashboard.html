@@ -10,15 +10,15 @@
         rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #050914;
-            --panel-bg: rgba(0, 20, 40, 0.4);
-            --text-main: #e0f7fa;
-            --text-dim: #ffffff;
-            --primary-cyan: #00e5ff;
-            --primary-cyan-dim: rgba(0, 229, 255, 0.3);
-            --safe-green: #00ff88;
-            --warn-yellow: #ffcc00;
-            --alert-red: #ff3366;
+            --bg-dark: #f5f5f5;
+            --panel-bg: rgba(255, 255, 255, 0.95);
+            --text-main: #1a1a1a;
+            --text-dim: #666666;
+            --primary-cyan: #0097a7;
+            --primary-cyan-dim: rgba(0, 151, 167, 0.15);
+            --safe-green: #2e7d32;
+            --warn-yellow: #f57f17;
+            --alert-red: #c62828;
             --font-head: 'Rajdhani', sans-serif;
             --font-mono: 'Roboto Mono', monospace;
         }
@@ -39,7 +39,7 @@
             flex-direction: column;
             padding: 10px;
             font-size: 14px;
-            background-image: radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.03) 0%, transparent 60%);
+            background-image: radial-gradient(circle at 50% 50%, rgba(0, 151, 167, 0.05) 0%, transparent 60%);
         }
 
         .hud-border {
@@ -354,6 +354,58 @@
             overflow: hidden;
         }
 
+        .filter-controls {
+            border-bottom: 1px solid var(--primary-cyan-dim);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .filter-toggle {
+            border: 1px solid var(--primary-cyan-dim);
+            padding: 4px 8px;
+            font-size: 10px;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            background: none;
+            color: var(--text-dim);
+            transition: 0.2s;
+        }
+
+        .filter-toggle:hover {
+            border-color: var(--primary-cyan);
+            color: var(--primary-cyan);
+        }
+
+        .filter-toggle.active {
+            border-color: var(--alert-red);
+            color: var(--alert-red);
+            background: rgba(255, 51, 102, 0.1);
+        }
+
+        .filter-input {
+            border: 1px solid var(--primary-cyan-dim);
+            background: rgba(0, 229, 255, 0.03);
+            color: var(--text-main);
+            padding: 4px 6px;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        .filter-input::placeholder {
+            color: var(--text-dim);
+            opacity: 0.5;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: var(--primary-cyan);
+            background: rgba(0, 229, 255, 0.08);
+        }
+
         .table-list {
             overflow-y: auto;
             flex-grow: 1;
@@ -377,6 +429,21 @@
         .session-card:hover {
             background: rgba(0, 229, 255, 0.08);
             border-color: var(--primary-cyan);
+        }
+
+        .db-activity-card {
+            border: 1px solid var(--primary-cyan-dim);
+            background: rgba(0, 229, 255, 0.03);
+            padding: 10px;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            transition: all 0.2s ease;
+        }
+
+        .db-activity-card:hover {
+            background: rgba(0, 229, 255, 0.08);
+            border-color: var(--primary-cyan);
+            transform: translateX(2px);
         }
 
         .session-id {
@@ -756,28 +823,35 @@
             border: 2px solid var(--primary-cyan);
             background: var(--panel-bg);
             padding: 20px;
-            width: 400px;
-            max-width: 90%;
-            box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+            width: 600px;
+            max-width: 95%;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.4);
         }
 
         .modal-header {
             color: var(--primary-cyan);
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 16px;
+            font-weight: 700;
             margin-bottom: 15px;
             text-transform: uppercase;
-            border-bottom: 1px solid var(--primary-cyan-dim);
-            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-cyan);
+            padding-bottom: 12px;
+            letter-spacing: 1px;
         }
 
         .modal-body {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
             margin-bottom: 15px;
             font-family: var(--font-mono);
-            font-size: 11px;
+            font-size: 12px;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 5px;
         }
 
         .modal-field {
@@ -822,6 +896,161 @@
             color: var(--text-main);
         }
 
+        /* --- Dashboard Metrics --- */
+        .metric-card {
+            border: 1px solid var(--primary-cyan-dim);
+            background: rgba(0, 229, 255, 0.03);
+            padding: 10px;
+            border-radius: 2px;
+        }
+
+        .metric-card.alert {
+            border-color: rgba(255, 51, 102, 0.3);
+            background: rgba(255, 51, 102, 0.02);
+        }
+
+        .metric-label {
+            font-size: 9px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary-cyan);
+            font-family: var(--font-mono);
+        }
+
+        .metric-card.alert .metric-value {
+            color: var(--alert-red);
+        }
+
+        .metric-subtext {
+            font-size: 9px;
+            color: var(--text-dim);
+            margin-top: 4px;
+            font-family: var(--font-mono);
+        }
+
+        .anomaly-item {
+            border-left: 3px solid var(--alert-red);
+            background: rgba(255, 51, 102, 0.05);
+            padding: 8px;
+            margin-bottom: 6px;
+            font-size: 10px;
+        }
+
+        .anomaly-item .anomaly-type {
+            color: var(--alert-red);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 9px;
+        }
+
+        .anomaly-item .anomaly-detail {
+            color: var(--text-dim);
+            margin-top: 3px;
+        }
+
+        .db-session-detail {
+            display: flex;
+            justify-content: space-between;
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+            font-size: 8px;
+        }
+
+        .db-session-detail .user {
+            color: var(--primary-cyan);
+        }
+
+        .db-session-detail .host {
+            color: var(--text-dim);
+        }
+
+        .db-session-detail .status {
+            font-weight: 600;
+        }
+
+        .db-card {
+            border: 1px solid var(--primary-cyan-dim);
+            background: rgba(0, 229, 255, 0.03);
+            padding: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            border-radius: 2px;
+        }
+
+        .db-card:hover {
+            background: rgba(0, 229, 255, 0.08);
+            border-color: var(--primary-cyan);
+            box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
+        }
+
+        .db-card-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary-cyan);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .db-card-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 8px;
+            font-size: 10px;
+        }
+
+        .db-card-metric {
+            text-align: center;
+            padding: 6px;
+            background: rgba(0, 229, 255, 0.05);
+            border: 1px solid rgba(0, 229, 255, 0.15);
+        }
+
+        .db-card-metric-label {
+            font-size: 8px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .db-card-metric-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary-cyan);
+        }
+
+        .db-card-footer {
+            font-size: 9px;
+            color: var(--primary-cyan);
+            text-align: right;
+            padding-top: 6px;
+            border-top: 1px dashed var(--primary-cyan-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .db-card-footer-text {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .db-card-arrow {
+            font-size: 12px;
+            font-weight: 700;
+        }
+
         .modal-field input[readonly] {
             background: rgba(0, 229, 255, 0.02) !important;
             color: var(--text-dim) !important;
@@ -837,14 +1066,15 @@
 
         .modal-actions button {
             border: 1px solid currentColor;
-            padding: 6px 16px;
-            font-size: 10px;
+            padding: 8px 20px;
+            font-size: 12px;
             font-family: var(--font-mono);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             cursor: pointer;
             background: none;
             transition: 0.2s;
+            font-weight: 600;
         }
 
         .modal-actions .confirm-btn {
@@ -935,14 +1165,30 @@
 
             <div class="hud-border sessions-box">
                 <div class="panel-header"
-                    title="Quick-glance active connection previews. Use Middle Column to manage sessions.">
+                    title="User sessions only (excludes SQL Server system sessions).">
                     <span style="display:flex; flex-direction:column;">
-                        <span>TOP_SESSIONS <span class="text-dim" style="font-size: 9px;">(QUICK PREVIEW)</span></span>
+                        <span>ACTIVE_SESSIONS <span class="text-dim" style="font-size: 9px;">(USER ONLY)</span></span>
                     </span>
                     <span class="text-dim">LIVE</span>
                 </div>
-                <div class="sessions-list" id="top-sessions">
-                    <div class="text-dim" style="text-align:center;padding:20px;">Loading...</div>
+
+                <!-- Top Sessions Preview -->
+                <div style="margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--primary-cyan-dim);">
+                    <div style="font-size:9px; color:var(--primary-cyan); font-weight:600; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.5px;">⭐ QUICK PREVIEW</div>
+                    <div class="sessions-list" id="top-sessions">
+                        <div class="text-dim" style="text-align:center;padding:15px; font-size:10px;">Loading...</div>
+                    </div>
+                </div>
+
+                <!-- Database Activity Cards -->
+                <div>
+                    <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+                        <span style="font-size:9px; color:var(--primary-cyan); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">🗄️ DATABASE ACTIVITY</span>
+                        <span style="font-size:8px; color:var(--text-dim);">(Click)</span>
+                    </div>
+                    <div id="db-activity-cards" style="display:flex; flex-direction:column; gap:6px;">
+                        <div class="text-dim" style="text-align:center;padding:10px; font-size:9px;">Loading...</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -954,6 +1200,25 @@
                     <span class="text-cyan" style="text-shadow:0 0 2px var(--primary-cyan);">ALL_SESSIONS //
                         DETAILED_VIEW</span>
                 </div>
+
+                <!-- Filter Controls -->
+                <div class="filter-controls" id="filter-controls">
+                    <div style="display:flex; gap:6px; margin-bottom:10px;">
+                        <button class="filter-toggle" id="system-toggle" onclick="toggleSystemSessions()" title="Show/hide system sessions (ID ≤ 50)">
+                            ⊙ SYSTEM
+                        </button>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-bottom:10px;">
+                        <input type="text" id="filter-app" placeholder="APP NAME..." class="filter-input" onkeyup="applyFilters()">
+                        <input type="text" id="filter-login" placeholder="LOGIN..." class="filter-input" onkeyup="applyFilters()">
+                        <input type="text" id="filter-host" placeholder="HOST..." class="filter-input" onkeyup="applyFilters()">
+                        <input type="text" id="filter-ip" placeholder="IP..." class="filter-input" onkeyup="applyFilters()">
+                    </div>
+                    <div style="font-size:9px; color:var(--text-dim); margin-bottom:8px;" id="filter-count">
+                        Showing all sessions
+                    </div>
+                </div>
+
                 <div class="table-list" id="sessions-list" style="margin-bottom:10px;">
                     <div class="text-dim" style="text-align:center;padding:20px;">Loading sessions...</div>
                 </div>
@@ -974,10 +1239,18 @@
                 </div>
 
                 <div class="tab-nav">
+                    <button class="tab-btn" onclick="switchTab('dashboard', this)">📊 DASH</button>
                     <button class="tab-btn tab-cyan active" onclick="switchTab('pending', this)">PENDING</button>
                     <button class="tab-btn tab-green" onclick="switchTab('whitelist', this)">✓ WHITE</button>
                     <button class="tab-btn tab-red" onclick="switchTab('blacklist', this)">✗ BLACK</button>
                     <button class="tab-btn" onclick="switchTab('log', this)">LOG</button>
+                </div>
+
+                <!-- Tab: Dashboard -->
+                <div class="tab-content" id="tab-dashboard">
+                    <div class="feed-list" style="gap:8px;" id="dashboard-content">
+                        <div class="text-dim" style="text-align:center;padding:20px;">Loading dashboard...</div>
+                    </div>
                 </div>
 
                 <!-- Tab: Pending -->
@@ -1003,6 +1276,16 @@
 
                 <!-- Tab: Audit Log -->
                 <div class="tab-content" id="tab-log">
+                    <div style="display:flex; gap:4px; margin-bottom:8px;">
+                        <input type="text" id="audit-search" placeholder="SEARCH..." class="filter-input" style="flex:1;" onkeyup="searchAuditLog()">
+                        <button class="filter-toggle" onclick="toggleAuditFilters()" title="Show filters">⚙</button>
+                    </div>
+                    <div id="audit-filters" style="display:none; border-bottom:1px solid var(--primary-cyan-dim); padding-bottom:8px; margin-bottom:8px;">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px;">
+                            <input type="text" id="audit-action" placeholder="ACTION..." class="filter-input" onkeyup="searchAuditLog()">
+                            <input type="text" id="audit-detail" placeholder="DETAIL..." class="filter-input" onkeyup="searchAuditLog()">
+                        </div>
+                    </div>
                     <div class="feed-list" id="audit-feed">
                         <div class="text-dim" style="text-align:center;padding:20px;">Loading...</div>
                     </div>
@@ -1010,6 +1293,19 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- Database Sessions Modal -->
+    <div class="modal" id="db-sessions-modal">
+        <div class="modal-content" style="width:500px;">
+            <div class="modal-header" id="db-modal-title">DATABASE SESSIONS</div>
+            <div class="modal-body" style="max-height:400px; overflow-y:auto;">
+                <div id="db-sessions-content">Loading...</div>
+            </div>
+            <div class="modal-actions">
+                <button class="cancel-btn" onclick="closeDbSessionsModal()">✕ CLOSE</button>
+            </div>
+        </div>
     </div>
 
     <!-- Edit Host Modal -->
@@ -1054,6 +1350,14 @@
         let whitelistData = [];
         let currentEditMode = null;
         let currentEditId = null;
+        let showSystemSessions = false;
+        let activeFilters = {
+            application: '',
+            database: '',
+            loginName: '',
+            hostName: ''
+        };
+        let allAuditLogs = [];
 
         // ── Clock (Asia/Bangkok = UTC+7) ──────────────────────────────────────
         const TZ = 'Asia/Bangkok';
@@ -1124,34 +1428,88 @@
             renderSessionsList();
         }
 
+        function toggleSystemSessions() {
+            showSystemSessions = !showSystemSessions;
+            const btn = document.getElementById('system-toggle');
+            if (showSystemSessions) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+            currentPage = 1;
+            renderSessionsList();
+        }
+
+        function applyFilters() {
+            activeFilters.application = document.getElementById('filter-app').value.toLowerCase();
+            activeFilters.loginName = document.getElementById('filter-login').value.toLowerCase();
+            activeFilters.hostName = document.getElementById('filter-host').value.toLowerCase();
+            activeFilters.hostName = document.getElementById('filter-ip').value.toLowerCase() || activeFilters.hostName;
+            currentPage = 1;
+            renderSessionsList();
+        }
+
+        function getFilteredSessions() {
+            let filtered = sessionData;
+
+            if (!showSystemSessions) {
+                filtered = filtered.filter(s => s.session_id > 50);
+            }
+
+            if (activeFilters.application) {
+                filtered = filtered.filter(s => s.application.toLowerCase().includes(activeFilters.application));
+            }
+            if (activeFilters.loginName) {
+                filtered = filtered.filter(s => s.login_name.toLowerCase().includes(activeFilters.loginName));
+            }
+            if (activeFilters.hostName) {
+                const hostFilter = activeFilters.hostName;
+                filtered = filtered.filter(s =>
+                    s.host_name.toLowerCase().includes(hostFilter) ||
+                    s.ip_address.toLowerCase().includes(hostFilter)
+                );
+            }
+
+            return filtered;
+        }
+
         function renderSessionsList() {
             const sessionsList = document.getElementById('sessions-list');
-            const maxPage = Math.ceil(sessionData.length / SESSIONS_PER_PAGE) || 1;
+            const filteredSessions = getFilteredSessions();
+            const maxPage = Math.ceil(filteredSessions.length / SESSIONS_PER_PAGE) || 1;
             if (currentPage > maxPage) currentPage = maxPage;
 
             document.getElementById('page-info').textContent = `PAGE ${currentPage} / ${maxPage}`;
             document.getElementById('prev-page').disabled = (currentPage === 1);
             document.getElementById('next-page').disabled = (currentPage === maxPage);
 
-            if (sessionData.length === 0) {
-                sessionsList.innerHTML = emptyHTML('No active sessions');
+            const filterCount = filteredSessions.length;
+            const totalCount = sessionData.filter(s => !(!showSystemSessions && s.session_id <= 50)).length;
+            document.getElementById('filter-count').textContent =
+                filterCount === totalCount
+                ? `Showing all sessions (${filterCount})`
+                : `Showing ${filterCount} of ${totalCount} sessions`;
+
+            if (filteredSessions.length === 0) {
+                sessionsList.innerHTML = emptyHTML('No sessions match filters');
                 return;
             }
 
             const startIdx = (currentPage - 1) * SESSIONS_PER_PAGE;
             const endIdx = startIdx + SESSIONS_PER_PAGE;
-            const pageSessions = sessionData.slice(startIdx, endIdx);
+            const pageSessions = filteredSessions.slice(startIdx, endIdx);
 
-            sessionsList.innerHTML = pageSessions.map((s, idx) => {
-                const actualIndex = startIdx + idx;
+            sessionsList.innerHTML = pageSessions.map((s) => {
+                const actualIndex = sessionData.findIndex(sess => sess.session_id === s.session_id);
                 return `
-                    <div class="session-card">
+                    <div class="session-card" style="${s.session_id <= 50 ? 'opacity:0.7;border-color:rgba(0,229,255,0.08);' : ''}">
+                        ${s.session_id <= 50 ? '<span style="position:absolute;top:4px;right:4px;font-size:9px;color:var(--text-dim);">SYSTEM</span>' : ''}
                         <span class="session-id">SESSION #${esc(s.session_id)} / ${esc(s.login_name)}</span>
                         <span class="session-detail">HOST: <strong>${esc(s.host_name)}</strong> // IP: <strong>${esc(s.ip_address)}</strong></span>
                         <span class="session-detail">APP: <strong>${esc(s.application)}</strong></span>
                         <span class="session-detail" style="color:var(--warn-yellow);">CONNECTED: <strong>${esc(formatTimestamp(s.login_time))}</strong></span>
                         <div class="session-actions">
-                            <button class="action-btn kill" data-idx="${actualIndex}">⊘ KILL</button>
+                            <button class="action-btn kill" data-idx="${actualIndex}" ${s.session_id <= 50 ? 'disabled' : ''}>⊘ KILL</button>
                             ${s.is_whitelisted
                         ? '<span style="color:var(--safe-green); font-size:10px; display:inline-flex; align-items:center;">✓ WHITELISTED</span>'
                         : '<button class="action-btn flag" data-idx="' + actualIndex + '">⚑ FLAG HOST</button>'
@@ -1161,10 +1519,54 @@
             }).join('');
         }
 
+        // ── Render Database Activity ──────────────────────────────────────────
+        async function renderDatabaseActivity() {
+            try {
+                const cardsEl = document.getElementById('db-activity-cards');
+                if (!cardsEl) return;
+
+                const response = await fetch('/api/metrics/by-database');
+                const data = await response.json();
+
+                if (!response.ok || !data.success || !data.by_database) {
+                    cardsEl.innerHTML = '';
+                    return;
+                }
+
+                const metrics = data.by_database || [];
+                cardsEl.innerHTML = metrics.map(m => `
+                    <div class="db-activity-card" onclick="openDbSessionsModal('${esc(m.database_name)}', ${m.session_count || 0})">
+                        <div style="font-size:11px; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px;">
+                            🗄️ ${esc(m.database_name)}
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:11px;">
+                            <div>
+                                <span style="color:var(--text-dim);">Sessions:</span>
+                                <span style="color:var(--safe-green); font-weight:bold; margin-left:4px;">${m.session_count || 0}</span>
+                            </div>
+                            <div>
+                                <span style="color:var(--text-dim);">Users:</span>
+                                <span style="color:var(--safe-green); font-weight:bold; margin-left:4px;">${m.unique_users || 0}</span>
+                            </div>
+                            <div>
+                                <span style="color:var(--text-dim);">Hosts:</span>
+                                <span style="color:var(--safe-green); font-weight:bold; margin-left:4px;">${m.unique_hosts || 0}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                console.error('Error rendering database activity:', err);
+                const cardsEl = document.getElementById('db-activity-cards');
+                if (cardsEl) cardsEl.innerHTML = '';
+            }
+        }
+
         // ── Load Sessions ─────────────────────────────────────────────────────
         async function loadSessions() {
             try {
-                const response = await fetch('/api/sessions');
+                const response = await fetch('/api/sessions/all-databases');
                 const data = await response.json();
 
                 if (!response.ok || !data.success) {
@@ -1177,12 +1579,13 @@
 
                 const sessions = data.sessions || [];
                 sessionData = sessions;
-                document.getElementById('total-sessions').textContent = sessions.length;
+                const userSessions = sessions.filter(s => s.session_id > 50);
+                document.getElementById('total-sessions').textContent = userSessions.length;
 
                 const topList = document.getElementById('top-sessions');
-                topList.innerHTML = sessions.length === 0
-                    ? emptyHTML('No active sessions')
-                    : sessions.slice(0, 5).map(s => {
+                topList.innerHTML = userSessions.length === 0
+                    ? emptyHTML('No user sessions')
+                    : userSessions.slice(0, 5).map(s => {
                         const loginTime = new Date(s.login_time);
                         const now = new Date();
                         const elapsed = Math.floor((now - loginTime) / 1000);
@@ -1208,6 +1611,7 @@
                     }).join('');
 
                 renderSessionsList();
+                renderDatabaseActivity();
 
             } catch (_) {
                 document.getElementById('total-sessions').textContent = '--';
@@ -1324,36 +1728,74 @@
 
         // ── Load Audit Log ────────────────────────────────────────────────────
         async function loadAuditLog() {
-            const feedList = document.getElementById('audit-feed');
             try {
-                const response = await fetch('/api/audit-log?limit=20');
+                const response = await fetch('/api/audit-log?limit=100');
                 const data = await response.json();
                 if (!response.ok || !data.success) {
-                    feedList.innerHTML = errorHTML(data.error || 'Request failed');
+                    document.getElementById('audit-feed').innerHTML = errorHTML(data.error || 'Request failed');
                     return;
                 }
-                const logs = data.logs || [];
-                if (logs.length === 0) { feedList.innerHTML = emptyHTML('No logs'); return; }
-
-                feedList.innerHTML = logs.map(log => {
-                    let icon = '▤', iconClass = 'text-cyan';
-                    if (log.action && log.action.includes('APPROVE')) { icon = '✓'; iconClass = 'text-green'; }
-                    else if (log.action && log.action.includes('BLOCK')) { icon = '✗'; iconClass = 'text-red'; }
-                    else if (log.action && log.action.includes('KILL')) { icon = '⊘'; iconClass = 'text-red'; }
-                    else if (log.action && log.action.includes('FLAG')) { icon = '⚑'; iconClass = 'text-yellow'; }
-                    const timeStr = log.timestamp ? formatTime(log.timestamp) : 'N/A';
-                    return `
-                        <div class="feed-item">
-                            <div class="feed-icon ${iconClass}">${icon}</div>
-                            <div class="feed-content">
-                                <p><strong class="${iconClass}">${esc(log.action)} //</strong> ${esc(log.details)}</p>
-                                <div class="feed-time">${esc(timeStr)} <span class="slash-accent">//</span> System_Log</div>
-                            </div>
-                        </div>`;
-                }).join('');
+                allAuditLogs = data.logs || [];
+                renderAuditLogs();
             } catch (_) {
-                feedList.innerHTML = errorHTML('Connection error');
+                document.getElementById('audit-feed').innerHTML = errorHTML('Connection error');
             }
+        }
+
+        function searchAuditLog() {
+            renderAuditLogs();
+        }
+
+        function toggleAuditFilters() {
+            const filtersEl = document.getElementById('audit-filters');
+            if (filtersEl.style.display === 'none') {
+                filtersEl.style.display = 'block';
+            } else {
+                filtersEl.style.display = 'none';
+            }
+        }
+
+        function renderAuditLogs() {
+            const feedList = document.getElementById('audit-feed');
+            const search = document.getElementById('audit-search').value.toLowerCase();
+            const actionFilter = document.getElementById('audit-action').value.toLowerCase();
+            const detailFilter = document.getElementById('audit-detail').value.toLowerCase();
+
+            let filtered = allAuditLogs;
+            if (search) {
+                filtered = filtered.filter(log =>
+                    (log.action && log.action.toLowerCase().includes(search)) ||
+                    (log.details && log.details.toLowerCase().includes(search))
+                );
+            }
+            if (actionFilter) {
+                filtered = filtered.filter(log => log.action && log.action.toLowerCase().includes(actionFilter));
+            }
+            if (detailFilter) {
+                filtered = filtered.filter(log => log.details && log.details.toLowerCase().includes(detailFilter));
+            }
+
+            if (filtered.length === 0) {
+                feedList.innerHTML = emptyHTML('No logs match filters');
+                return;
+            }
+
+            feedList.innerHTML = filtered.map(log => {
+                let icon = '▤', iconClass = 'text-cyan';
+                if (log.action && log.action.includes('APPROVE')) { icon = '✓'; iconClass = 'text-green'; }
+                else if (log.action && log.action.includes('BLOCK')) { icon = '✗'; iconClass = 'text-red'; }
+                else if (log.action && log.action.includes('KILL')) { icon = '⊘'; iconClass = 'text-red'; }
+                else if (log.action && log.action.includes('FLAG')) { icon = '⚑'; iconClass = 'text-yellow'; }
+                const timeStr = log.timestamp ? formatTime(log.timestamp) : 'N/A';
+                return `
+                    <div class="feed-item">
+                        <div class="feed-icon ${iconClass}">${icon}</div>
+                        <div class="feed-content">
+                            <p><strong class="${iconClass}">${esc(log.action)} //</strong> ${esc(log.details)}</p>
+                            <div class="feed-time">${esc(timeStr)} <span class="slash-accent">//</span> System_Log</div>
+                        </div>
+                    </div>`;
+            }).join('');
         }
 
         // ── Event delegation ──────────────────────────────────────────────────
@@ -1547,7 +1989,81 @@
         }
 
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeEditModal();
+            if (e.key === 'Escape') {
+                closeEditModal();
+                closeDbSessionsModal();
+            }
+        });
+
+        // ── Database Sessions Modal ────────────────────────────────────────
+        function openDbSessionsModal(dbName, sessionCount) {
+            const allSessions = sessionData.filter(s => s.database_name === dbName);
+            document.getElementById('db-modal-title').textContent = `📁 ${esc(dbName)} // ${allSessions.length} SESSION${allSessions.length !== 1 ? 'S' : ''}`;
+
+            let html = '';
+            if (allSessions.length === 0) {
+                html = '<div class="text-dim" style="text-align:center;padding:30px;font-size:12px;">✓ No active sessions</div>';
+            } else {
+                html = allSessions.map((s, idx) => `
+                    <div style="border:1px solid var(--primary-cyan-dim); background:rgba(0,229,255,0.04); padding:12px; margin-bottom:8px; border-radius:2px;">
+                        <!-- Header: ID + Status -->
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:12px; font-weight:700; color:var(--primary-cyan);">▾ SESSION #${s.session_id}</span>
+                                <span style="font-size:9px; color:var(--text-dim);">(${idx + 1}/${allSessions.length})</span>
+                            </div>
+                            <span style="color:${s.is_whitelisted ? 'var(--safe-green)' : 'var(--warn-yellow)'}; font-size:11px; font-weight:700; text-transform:uppercase;">
+                                ${s.is_whitelisted ? '✓ WHITELISTED' : '○ PENDING'}
+                            </span>
+                        </div>
+
+                        <!-- User & Host -->
+                        <div style="background:rgba(0,229,255,0.08); padding:8px; margin-bottom:8px; border-left:2px solid var(--primary-cyan);">
+                            <div style="font-size:13px; font-weight:600; color:var(--primary-cyan); margin-bottom:3px;">
+                                👤 ${esc(s.login_name)}
+                            </div>
+                            <div style="font-size:11px; color:var(--text-dim);">
+                                🖥️ ${esc(s.host_name)}
+                            </div>
+                        </div>
+
+                        <!-- Details Grid -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:11px;">
+                            <div>
+                                <div style="color:var(--text-dim); font-size:9px; text-transform:uppercase; margin-bottom:2px;">IP Address</div>
+                                <div style="color:var(--primary-cyan); font-weight:600;">${esc(s.ip_address)}</div>
+                            </div>
+                            <div>
+                                <div style="color:var(--text-dim); font-size:9px; text-transform:uppercase; margin-bottom:2px;">Status</div>
+                                <div style="color:var(--warn-yellow); font-weight:600; text-transform:uppercase;">${esc(s.status)}</div>
+                            </div>
+                            <div style="grid-column:1/-1;">
+                                <div style="color:var(--text-dim); font-size:9px; text-transform:uppercase; margin-bottom:2px;">Application</div>
+                                <div style="color:var(--text-main); font-size:10px;">${esc(s.application.substring(0, 45))}</div>
+                            </div>
+                        </div>
+
+                        <!-- Timestamp -->
+                        <div style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--primary-cyan-dim); font-size:10px; color:var(--text-dim);">
+                            ⏰ Connected: ${esc(formatTimestamp(s.login_time))}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('db-sessions-content').innerHTML = html;
+            document.getElementById('db-sessions-modal').classList.add('active');
+        }
+
+        function closeDbSessionsModal() {
+            document.getElementById('db-sessions-modal').classList.remove('active');
+        }
+
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('db-sessions-modal');
+            if (e.target === modal) {
+                closeDbSessionsModal();
+            }
         });
 
         async function manualScan() {
@@ -1561,11 +2077,132 @@
             setTimeout(() => { btn.innerHTML = '⟳ MANUAL_SCAN'; btn.disabled = false; }, 2000);
         }
 
+        // ── Load Dashboard ─────────────────────────────────────────────────
+        async function loadDashboard() {
+            const contentEl = document.getElementById('dashboard-content');
+            try {
+                const metricsResp = await fetch('/api/metrics/by-database');
+                const metricsData = await metricsResp.json();
+                const sessionsResp = await fetch('/api/sessions/all-databases');
+                const sessionsData = await sessionsResp.json();
+                const sessions = sessionsData.sessions || [];
+                const auditResp = await fetch('/api/audit-log?limit=100');
+                const auditData = await auditResp.json();
+                const logs = auditData.logs || [];
+
+                const totals = metricsData.totals || {};
+                const byDatabase = metricsData.by_database || [];
+                const totalSessions = totals.total_sessions || 0;
+                const totalUsers = totals.total_users || 0;
+                const totalHosts = totals.total_hosts || 0;
+                const totalDatabases = totals.total_databases || 0;
+
+                const avgSessionDuration = sessions.length > 0
+                    ? Math.round(sessions.reduce((sum, s) => {
+                        if (s.login_time) return sum + (new Date() - new Date(s.login_time)) / 1000;
+                        return sum;
+                    }, 0) / sessions.length / 60)
+                    : 0;
+
+                const failedLogins = logs.filter(l => l.action && l.action.includes('FLAG')).length;
+                const approvedHosts = logs.filter(l => l.action && l.action.includes('APPROVE')).length;
+                const blockedHosts = logs.filter(l => l.action && l.action.includes('BLOCK')).length;
+
+                const anomalies = [];
+                if (failedLogins > 5) {
+                    anomalies.push({ type: 'HIGH_FAILED_LOGINS', icon: '⚠', message: `${failedLogins} hosts flagged for review` });
+                }
+
+                const longSessions = sessions.filter(s => {
+                    if (!s.login_time) return false;
+                    const duration = (new Date() - new Date(s.login_time)) / 1000 / 3600;
+                    return duration > 8;
+                });
+                if (longSessions.length > 0) {
+                    anomalies.push({ type: 'LONG_SESSIONS', icon: '⏱', message: `${longSessions.length} session(s) running > 8 hours` });
+                }
+
+                const now = new Date(); const hour = now.getHours();
+                if (hour >= 22 || hour <= 5) {
+                    const nightSessions = sessions.filter(s => {
+                        if (!s.login_time) return false;
+                        const loginHour = new Date(s.login_time).getHours();
+                        return loginHour >= 22 || loginHour <= 5;
+                    });
+                    if (nightSessions.length > 0) {
+                        anomalies.push({ type: 'OFF_HOURS', icon: '🌙', message: `${nightSessions.length} login(s) during off-hours` });
+                    }
+                }
+
+                let html = `
+                    <div style="margin-bottom:8px;">
+                        <div style="font-size:10px; color:var(--primary-cyan); font-weight:600; text-transform:uppercase; margin-bottom:4px;">📊 OVERALL METRICS</div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px; margin-bottom:8px;">
+                            <div class="metric-card"><div class="metric-label">Sessions</div><div class="metric-value">${totalSessions}</div><div class="metric-subtext">Across ${totalDatabases} databases</div></div>
+                            <div class="metric-card"><div class="metric-label">Unique Users</div><div class="metric-value">${totalUsers}</div><div class="metric-subtext">from ${totalHosts} hosts</div></div>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px;">
+                            <div class="metric-card"><div class="metric-label">Avg Duration</div><div class="metric-value">${avgSessionDuration}m</div></div>
+                            <div class="metric-card"><div class="metric-label">Approved</div><div class="metric-value text-green">${approvedHosts}</div></div>
+                            <div class="metric-card"><div class="metric-label">Blocked</div><div class="metric-value text-red">${blockedHosts}</div></div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:8px; border-top:1px solid var(--primary-cyan-dim); padding-top:10px;">
+                        <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+                            <span style="font-size:11px; color:var(--primary-cyan); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">🗄️ DATABASE ACTIVITY</span>
+                            <span style="font-size:9px; color:var(--text-dim); font-style:italic;">(Click to view sessions)</span>
+                        </div>
+                        ${byDatabase.length === 0 ? '<div class="text-dim" style="font-size:10px; text-align:center; padding:15px;">No active sessions</div>' : byDatabase.map(db => {
+                            const dbSessionCount = sessions.filter(s => s.database_name === db.database_name).length;
+                            return `
+                            <div class="db-card" onclick="openDbSessionsModal('${esc(db.database_name)}', ${dbSessionCount})">
+                                <div class="db-card-name">📁 ${esc(db.database_name)}</div>
+                                <div class="db-card-metrics">
+                                    <div class="db-card-metric">
+                                        <div class="db-card-metric-label">Sessions</div>
+                                        <div class="db-card-metric-value">${db.session_count}</div>
+                                    </div>
+                                    <div class="db-card-metric">
+                                        <div class="db-card-metric-label">Users</div>
+                                        <div class="db-card-metric-value">${db.unique_users}</div>
+                                    </div>
+                                    <div class="db-card-metric">
+                                        <div class="db-card-metric-label">Hosts</div>
+                                        <div class="db-card-metric-value">${db.unique_hosts}</div>
+                                    </div>
+                                </div>
+                                <div class="db-card-footer">
+                                    <span class="db-card-footer-text">View ${dbSessionCount} session${dbSessionCount !== 1 ? 's' : ''}</span>
+                                    <span class="db-card-arrow">→</span>
+                                </div>
+                            </div>
+                            `;
+                        }).join('')}
+                    </div>`;
+
+                if (anomalies.length > 0) {
+                    html += `<div style="margin-top:8px; border-top:1px solid var(--primary-cyan-dim); padding-top:8px;">
+                        <div style="font-size:10px; color:var(--alert-red); font-weight:600; text-transform:uppercase; margin-bottom:6px;">⚠ ANOMALIES DETECTED</div>`;
+                    anomalies.forEach(a => {
+                        html += `<div class="anomaly-item"><div class="anomaly-type">${a.icon} ${a.type}</div><div class="anomaly-detail">${esc(a.message)}</div></div>`;
+                    });
+                    html += `</div>`;
+                } else {
+                    html += `<div style="text-align:center; color:var(--safe-green); margin-top:8px; font-size:10px;">✓ No anomalies detected</div>`;
+                }
+
+                contentEl.innerHTML = html;
+            } catch (err) {
+                contentEl.innerHTML = errorHTML('Failed to load dashboard: ' + err.message);
+            }
+        }
+
         function refreshAll() {
             loadSessions();
             loadPendingHosts();
             loadWhitelist();
             loadBlacklist();
+            loadDashboard();
             loadAuditLog();
         }
 
