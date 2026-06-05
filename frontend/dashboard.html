@@ -1307,6 +1307,21 @@
         </div>
     </div>
 
+    <!-- Database Activity Detail Modal -->
+    <div class="modal" id="db-activity-modal">
+        <div class="modal-content" style="width:750px; max-height:80vh;">
+            <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center;">
+                <span id="db-activity-title">DATABASE // ACTIVITY</span>
+                <button class="cancel-btn" onclick="closeDbActivityModal()" style="margin:0;">✕</button>
+            </div>
+            <div class="modal-body" style="max-height:70vh; overflow-y:auto;">
+                <div id="db-activity-content">
+                    <div class="text-dim" style="text-align:center;padding:40px;">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Edit Host Modal -->
     <div class="modal" id="edit-modal">
         <div class="modal-content">
@@ -2119,7 +2134,7 @@
                 }
 
                 return `
-                    <div class="db-activity-card" style="cursor:pointer;" onclick="openDbDetailModal('${esc(db.database_name)}')">
+                    <div class="db-activity-card">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
                             <div>
                                 <div style="font-size:12px; font-weight:700; color:var(--primary-cyan);">🗄️ ${esc(db.database_name)}</div>
@@ -2130,7 +2145,7 @@
                                 <div style="font-size:8px; color:var(--text-dim); margin-top:2px;">${durationText || '—'}</div>
                             </div>
                         </div>
-                        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px; font-size:10px;">
+                        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px; font-size:10px; margin-bottom:8px;">
                             <div style="background:rgba(0,229,255,0.08); padding:6px; border-radius:1px; text-align:center;">
                                 <div style="color:var(--text-dim); font-size:7px; margin-bottom:2px; text-transform:uppercase;">Sessions</div>
                                 <div style="color:${sessionColor}; font-weight:bold; font-size:11px;">${db.session_count || 0}</div>
@@ -2143,6 +2158,14 @@
                                 <div style="color:var(--text-dim); font-size:7px; margin-bottom:2px; text-transform:uppercase;">Hosts</div>
                                 <div style="color:var(--safe-green); font-weight:bold; font-size:11px;">${db.unique_hosts || 0}</div>
                             </div>
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            <button onclick="openDbDetailModal('${esc(db.database_name)}')" style="flex:1; padding:6px; font-size:9px; background:rgba(0,151,167,0.2); color:var(--primary-cyan); border:1px solid rgba(0,151,167,0.3); border-radius:2px; cursor:pointer; font-weight:600;">
+                                Sessions
+                            </button>
+                            <button onclick="openDbActivityModal('${esc(db.database_name)}')" style="flex:1; padding:6px; font-size:9px; background:rgba(0,151,167,0.2); color:var(--primary-cyan); border:1px solid rgba(0,151,167,0.3); border-radius:2px; cursor:pointer; font-weight:600;">
+                                Activity
+                            </button>
                         </div>
                     </div>
                 `;
@@ -2247,11 +2270,113 @@
             modal.classList.remove('active');
         }
 
+        // Database Activity Detail Modal
+        async function openDbActivityModal(dbName) {
+            const modal = document.getElementById('db-activity-modal');
+            document.getElementById('db-activity-title').textContent = `DATABASE // ACTIVITY — ${dbName}`;
+            modal.classList.add('active');
+
+            try {
+                const metricsResponse = await fetch('/api/metrics/by-database');
+                const metricsData = await metricsResponse.json();
+                const dbMetrics = (metricsData.by_database || []).find(d => d.database_name === dbName);
+
+                if (!dbMetrics) {
+                    document.getElementById('db-activity-content').innerHTML = '<div class="text-dim" style="text-align:center;padding:20px;">Database not found</div>';
+                    return;
+                }
+
+                let durationText = '';
+                if (dbMetrics.oldest_session && dbMetrics.newest_session) {
+                    const oldest = new Date(dbMetrics.oldest_session);
+                    const newest = new Date(dbMetrics.newest_session);
+                    const diffMs = newest - oldest;
+                    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                    const diffDays = Math.floor(diffHours / 24);
+                    durationText = diffDays > 0 ? `${diffDays}d ${diffHours % 24}h` : `${diffHours}h`;
+                }
+
+                const statusColor = (dbMetrics.session_count || 0) > 150 ? 'var(--alert-red)' :
+                                    (dbMetrics.session_count || 0) > 100 ? 'var(--warn-yellow)' : 'var(--safe-green)';
+                const status = (dbMetrics.session_count || 0) > 150 ? 'HIGH' :
+                               (dbMetrics.session_count || 0) > 100 ? 'ELEVATED' : 'NORMAL';
+
+                let html = `
+                    <div style="margin-bottom:15px; padding:15px; background:rgba(0,151,167,0.08); border-radius:2px;">
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; margin-bottom:10px;">
+                            <div style="text-align:center;">
+                                <div style="font-size:10px; color:var(--text-dim); margin-bottom:4px;">Sessions</div>
+                                <div style="font-size:16px; font-weight:700; color:var(--primary-cyan);">${dbMetrics.session_count || 0}</div>
+                            </div>
+                            <div style="text-align:center;">
+                                <div style="font-size:10px; color:var(--text-dim); margin-bottom:4px;">Users</div>
+                                <div style="font-size:16px; font-weight:700; color:var(--safe-green);">${dbMetrics.unique_users || 0}</div>
+                            </div>
+                            <div style="text-align:center;">
+                                <div style="font-size:10px; color:var(--text-dim); margin-bottom:4px;">Hosts</div>
+                                <div style="font-size:16px; font-weight:700; color:var(--safe-green);">${dbMetrics.unique_hosts || 0}</div>
+                            </div>
+                            <div style="text-align:center;">
+                                <div style="font-size:10px; color:var(--text-dim); margin-bottom:4px;">Status</div>
+                                <div style="font-size:16px; font-weight:700; color:${statusColor};">${status}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:12px;">
+                        <div style="font-size:11px; color:var(--primary-cyan); font-weight:700; margin-bottom:8px;">Activity Duration</div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; font-size:11px;">
+                            <div style="padding:8px; background:rgba(0,151,167,0.05); border-radius:2px;">
+                                <span style="color:var(--text-dim);">Latest:</span>
+                                <div style="color:var(--primary-cyan); font-weight:600;">${dbMetrics.newest_session ? formatTimestamp(dbMetrics.newest_session) : 'N/A'}</div>
+                            </div>
+                            <div style="padding:8px; background:rgba(0,151,167,0.05); border-radius:2px;">
+                                <span style="color:var(--text-dim);">Oldest:</span>
+                                <div style="color:var(--primary-cyan); font-weight:600;">${dbMetrics.oldest_session ? formatTimestamp(dbMetrics.oldest_session) : 'N/A'}</div>
+                            </div>
+                            <div style="padding:8px; background:rgba(0,151,167,0.05); border-radius:2px;">
+                                <span style="color:var(--text-dim);">Duration:</span>
+                                <div style="color:var(--primary-cyan); font-weight:600;">${durationText || '—'}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:12px;">
+                        <div style="font-size:11px; color:var(--primary-cyan); font-weight:700; margin-bottom:8px;">Metrics</div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:11px;">
+                            <div style="padding:8px; background:rgba(46,125,50,0.1); border-left:2px solid var(--safe-green); border-radius:2px;">
+                                <div style="color:var(--text-dim); margin-bottom:4px;">Sessions per User</div>
+                                <div style="font-size:14px; font-weight:700; color:var(--primary-cyan);">${dbMetrics.unique_users > 0 ? Math.round(dbMetrics.session_count / dbMetrics.unique_users) : 0}</div>
+                            </div>
+                            <div style="padding:8px; background:rgba(46,125,50,0.1); border-left:2px solid var(--safe-green); border-radius:2px;">
+                                <div style="color:var(--text-dim); margin-bottom:4px;">Sessions per Host</div>
+                                <div style="font-size:14px; font-weight:700; color:var(--primary-cyan);">${dbMetrics.unique_hosts > 0 ? Math.round(dbMetrics.session_count / dbMetrics.unique_hosts) : 0}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('db-activity-content').innerHTML = html;
+            } catch (err) {
+                console.error('Error loading activity:', err);
+                document.getElementById('db-activity-content').innerHTML = '<div class="text-red" style="text-align:center;padding:20px;">Error loading activity</div>';
+            }
+        }
+
+        function closeDbActivityModal() {
+            const modal = document.getElementById('db-activity-modal');
+            modal.classList.remove('active');
+        }
+
         // Close modal when clicking outside
         document.addEventListener('click', function(e) {
-            const modal = document.getElementById('db-detail-modal');
-            if (e.target === modal) {
+            const dbDetailModal = document.getElementById('db-detail-modal');
+            const dbActivityModal = document.getElementById('db-activity-modal');
+            if (e.target === dbDetailModal) {
                 closeDbDetailModal();
+            }
+            if (e.target === dbActivityModal) {
+                closeDbActivityModal();
             }
         });
 
