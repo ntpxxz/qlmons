@@ -77,30 +77,3 @@ CREATE INDEX idx_sessions_status ON SessionMonitor(SessionStatus);
 CREATE INDEX idx_pending_status ON PendingHosts(Status);
 CREATE INDEX idx_audit_timestamp ON AuditLog(Timestamp);
 
--- Insert sample data
-INSERT INTO RegisteredHosts (HostName, IPAddress, IsWhitelisted, LastSeen)
-VALUES
-    ('ADMIN-WORKSTATION', '192.168.1.10', 1, GETDATE()),
-    ('SERVER-APP-01', '192.168.1.20', 1, GETDATE()),
-    ('SERVER-APP-02', '192.168.1.21', 1, GETDATE()),
-    ('HR-FRONTEND', '192.168.1.30', 1, GETDATE()),
-    ('BACKUP-NODE', '192.168.1.40', 1, GETDATE());
-
--- Insert sample users (change passwords in production!)
-INSERT INTO Users (Username, PasswordHash, Email, HostID, IsActive)
-VALUES
-    ('admin', 'admin123', 'admin@company.com', 1, 1),
-    ('dbadmin', 'password123', 'dbadmin@company.com', 2, 1),
-    ('operator', 'operator123', 'operator@company.com', 3, 1);
-
--- Insert sample session
-INSERT INTO SessionMonitor (UserID, HostID, LoginTime, IPAddress, SessionStatus)
-VALUES
-    (1, 1, GETDATE(), '192.168.1.10', 'ACTIVE'),
-    (2, 2, GETDATE(), '192.168.1.20', 'ACTIVE');
-
--- Insert sample audit logs
-INSERT INTO AuditLog (UserID, Action, Details, Timestamp)
-VALUES
-    (1, 'LOGIN', 'Admin logged in', GETDATE()),
-    (1, 'SCAN_COMPLETED', 'System scan completed - 142 active hosts registered', DATEADD(MINUTE, -30, GETDATE()));
