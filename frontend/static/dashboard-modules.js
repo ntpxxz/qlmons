@@ -188,7 +188,7 @@ DatabaseActivityView.renderItems = function(databases) {
             <div style="font-size:10px; color:${statusColor}; font-weight:700;">${status}</div>
           </div>
         </div>
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px; font-size:10px;">
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px; font-size:10px; margin-bottom:8px;">
           <div style="background:rgba(0,229,255,0.08); padding:6px; border-radius:1px; text-align:center;">
             <div style="color:var(--text-dim); font-size:7px; margin-bottom:2px; text-transform:uppercase;">Sessions</div>
             <div style="color:${sessionColor}; font-weight:bold; font-size:11px;">${db.session_count || 0}</div>
@@ -201,6 +201,10 @@ DatabaseActivityView.renderItems = function(databases) {
             <div style="color:var(--text-dim); font-size:7px; margin-bottom:2px; text-transform:uppercase;">Hosts</div>
             <div style="color:var(--safe-green); font-weight:bold; font-size:11px;">${db.unique_hosts || 0}</div>
           </div>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button onclick="openDbDetailModal(${JSON.stringify(db.database_name)})" style="flex:1; padding:6px; font-size:9px; background:rgba(0,151,167,0.2); color:var(--primary-cyan); border:1px solid rgba(0,151,167,0.3); border-radius:2px; cursor:pointer; font-weight:600;">Sessions</button>
+          <button onclick="openDbActivityModal(${JSON.stringify(db.database_name)})" style="flex:1; padding:6px; font-size:9px; background:rgba(0,151,167,0.2); color:var(--primary-cyan); border:1px solid rgba(0,151,167,0.3); border-radius:2px; cursor:pointer; font-weight:600;">Activity</button>
         </div>
       </div>
     `;
