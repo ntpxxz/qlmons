@@ -212,8 +212,7 @@
 
             <h4>❌ "No results from scan"</h4>
             <ol>
-                <li>Check if SQL Server is running:
-                    <code>sqlcmd -S 192.168.101.219 -U DATALYZER -P NMB54321 -Q "SELECT 1"</code></li>
+                <li>Check if SQL Server is running with credentials from .env</li>
                 <li>Verify database created: Run <code>schema.sql</code></li>
                 <li>Check .env credentials are correct</li>
                 <li>Restart application: <code>python app.py</code></li>
@@ -221,7 +220,7 @@
 
             <h4>❌ "Connection refused"</h4>
             <ol>
-                <li>Verify SQL Server IP: <code>192.168.101.219</code></li>
+                <li>Verify SQL Server address in .env file</li>
                 <li>Check SQL Server is running</li>
                 <li>Verify ODBC Driver 17 installed</li>
                 <li>Check firewall allows port 1433</li>
@@ -237,11 +236,11 @@
             <h4>❌ ".env not found or credentials wrong"</h4>
             <ol>
                 <li>Create .env: <code>copy .env.example .env</code></li>
-                <li>Edit with correct credentials:
-                    <pre>SQL_SERVER=192.168.101.219
+                <li>Edit with your SQL Server credentials:
+                    <pre>SQL_SERVER=your-sql-server-address
 SQL_DATABASE=SqlSecurityHUD
-SQL_USER=DATALYZER
-SQL_PASSWORD=NMB54321</pre>
+SQL_USER=your-username
+SQL_PASSWORD=your-password</pre>
                 </li>
                 <li>Restart app</li>
             </ol>
