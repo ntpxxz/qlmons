@@ -178,7 +178,7 @@ DatabaseActivityView.renderItems = function(databases) {
                        (db.session_count || 0) > 100 ? 'var(--warn-yellow)' : 'var(--safe-green)';
 
     return `
-      <div class="db-activity-card" style="cursor:pointer;" onclick="openDbDetailModal(${JSON.stringify(db.database_name)})">
+      <div class="db-activity-card" style="cursor:pointer;" onclick='openDbDetailModal(${JSON.stringify(db.database_name)})'>
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
           <div>
             <div style="font-size:12px; font-weight:700; color:var(--primary-cyan);">🗄️ ${DashboardUtils.esc(db.database_name)}</div>
