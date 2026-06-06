@@ -26,7 +26,7 @@ const DashboardUtils = {
   },
 
   errorHTML: (msg) =>
-    `<div class="text-red" style="text-align:center;padding:20px;font-size:11px;">⚠ ${DashboardUtils.esc(msg)}</div>`,
+    `<div class="text-red" style="text-align:center;padding:20px;font-size:11px;">${DashboardUtils.esc(msg)}</div>`,
 };
 
 // ============================================================================
@@ -172,8 +172,8 @@ DatabaseActivityView.renderItems = function(databases) {
   return databases.map(db => {
     const sessionColor = (db.session_count || 0) > 100 ? 'var(--alert-red)' :
                          (db.session_count || 0) > 50 ? 'var(--warn-yellow)' : 'var(--safe-green)';
-    const status = (db.session_count || 0) > 150 ? '⚠ HIGH' :
-                   (db.session_count || 0) > 100 ? '⚠ ELEVATED' : '✓ NORMAL';
+    const status = (db.session_count || 0) > 150 ? 'HIGH' :
+                   (db.session_count || 0) > 100 ? 'ELEVATED' : 'NORMAL';
     const statusColor = (db.session_count || 0) > 150 ? 'var(--alert-red)' :
                        (db.session_count || 0) > 100 ? 'var(--warn-yellow)' : 'var(--safe-green)';
 
@@ -181,7 +181,7 @@ DatabaseActivityView.renderItems = function(databases) {
       <div class="db-activity-card" style="cursor:pointer;" onclick='openDbDetailModal(${JSON.stringify(db.database_name)})'>
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
           <div>
-            <div style="font-size:12px; font-weight:700; color:var(--primary-cyan);">🗄️ ${DashboardUtils.esc(db.database_name)}</div>
+            <div style="font-size:12px; font-weight:700; color:var(--primary-cyan);">${DashboardUtils.esc(db.database_name)}</div>
             <div style="font-size:8px; color:var(--text-dim); margin-top:2px;">${db.newest_session ? DashboardUtils.esc(DashboardUtils.formatTimestamp(db.newest_session)) : 'No activity'}</div>
           </div>
           <div style="text-align:right;">
@@ -236,7 +236,7 @@ function initDashboardModules() {
     DatabaseActivityView.refresh();
   }, 30000);
 
-  console.log('✓ Dashboard modules ready');
+  console.log('Dashboard modules ready');
 }
 
 // Initialize when DOM is ready

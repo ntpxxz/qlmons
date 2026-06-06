@@ -439,7 +439,6 @@
         .db-activity-card:hover {
             background: rgba(0, 229, 255, 0.08);
             border-color: var(--primary-cyan);
-            transform: translateX(2px);
         }
 
         .session-id {
@@ -754,19 +753,6 @@
         .scan-btn.scanning {
             color: var(--warn-yellow) !important;
             border-color: var(--warn-yellow) !important;
-            animation: scan-pulse 0.6s ease-in-out infinite;
-        }
-
-        @keyframes scan-pulse {
-
-            0%,
-            100% {
-                box-shadow: 0 0 8px var(--warn-yellow);
-            }
-
-            50% {
-                box-shadow: none;
-            }
         }
 
         .last-scan {
@@ -1229,7 +1215,7 @@
 
                 <div class="tab-nav">
                     <button class="tab-btn tab-cyan active" onclick="switchTab('pending', this)">PENDING</button>
-                    <button class="tab-btn tab-green" onclick="switchTab('whitelist', this)">✓ WHITE</button>
+                    <button class="tab-btn tab-green" onclick="switchTab('whitelist', this)">WHITE</button>
                     <button class="tab-btn tab-red" onclick="switchTab('blacklist', this)">✗ BLACK</button>
                     <button class="tab-btn" onclick="switchTab('log', this)">LOG</button>
                 </div>
@@ -1297,7 +1283,7 @@
         <div class="modal-content" style="width:700px; max-height:80vh;">
             <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center;">
                 <span id="db-detail-title">DATABASE DETAILS</span>
-                <button class="cancel-btn" onclick="closeDbDetailModal()" style="margin:0;">✕</button>
+                <button class="cancel-btn" onclick="closeDbDetailModal()" style="margin:0;">Close</button>
             </div>
             <div class="modal-body" style="max-height:70vh; overflow-y:auto;">
                 <div id="db-detail-content">
@@ -1350,8 +1336,8 @@
                 </div>
             </div>
             <div class="modal-actions">
-                <button class="cancel-btn" onclick="closeEditModal()">✕ CLOSE</button>
-                <button class="confirm-btn" id="modal-save-btn" onclick="saveHostEdit()">✓ SAVE</button>
+                <button class="cancel-btn" onclick="closeEditModal()">CLOSE</button>
+                <button class="confirm-btn" id="modal-save-btn" onclick="saveHostEdit()">SAVE</button>
                 <button class="action-btn remove" id="modal-delete-btn" onclick="deleteHostFromModal()">⊘ REMOVE</button>
             </div>
         </div>
@@ -1428,7 +1414,7 @@
             return new Date(isoString).toLocaleTimeString('th-TH', { timeZone: TZ });
         }
         function errorHTML(msg) {
-            return `<div class="text-red" style="text-align:center;padding:20px;font-family:var(--font-mono);font-size:11px;">⚠ ${esc(msg)}</div>`;
+            return `<div class="text-red" style="text-align:center;padding:20px;font-family:var(--font-mono);font-size:11px;">${esc(msg)}</div>`;
         }
         function emptyHTML(msg) {
             return `<div class="text-dim" style="text-align:center;padding:20px;">${esc(msg)}</div>`;
@@ -1529,7 +1515,7 @@
                         <div class="session-actions">
                             <button class="action-btn kill" data-idx="${actualIndex}" ${s.session_id <= 50 ? 'disabled' : ''}>⊘ KILL</button>
                             ${s.is_whitelisted
-                        ? '<span style="color:var(--safe-green); font-size:10px; display:inline-flex; align-items:center;">✓ WHITELISTED</span>'
+                        ? '<span style="color:var(--safe-green); font-size:10px; display:inline-flex; align-items:center;">WHITELISTED</span>'
                         : '<button class="action-btn flag" data-idx="' + actualIndex + '">⚑ FLAG HOST</button>'
                     }
                         </div>
@@ -1567,7 +1553,7 @@
                         if (elapsed < 60) elapsedStr = elapsed + 's';
                         else if (elapsed < 3600) elapsedStr = Math.floor(elapsed / 60) + 'm';
                         else elapsedStr = Math.floor(elapsed / 3600) + 'h';
-                        const whiteListed = s.is_whitelisted ? '✓' : '○';
+                        const whiteListed = s.is_whitelisted ? 'YES' : 'NO';
                         return `
                             <div class="session-item" title="${esc(s.host_name)} (${esc(s.ip_address)})">
                                 <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
@@ -1620,7 +1606,7 @@
                             <span class="host-detail">IP: <strong>${esc(h.ip_address)}</strong> // USER: <strong>${esc(h.user_attempted)}</strong></span>
                             <span class="host-detail">ATTEMPTS: <strong>${h.attempt_count}</strong> // LAST: <strong>${esc(formatTimestamp(h.last_attempt))}</strong></span>
                             <div class="host-actions">
-                                <button class="action-btn approve" data-host-idx="${i}" data-action="approve">✓ APPROVE</button>
+                                <button class="action-btn approve" data-host-idx="${i}" data-action="approve">APPROVE</button>
                                 <button class="action-btn block"   data-host-idx="${i}" data-action="block">✗ BLOCK</button>
                                 <button class="action-btn cancel"  data-host-idx="${i}" data-action="cancel">⊝ CANCEL</button>
                             </div>
@@ -1652,7 +1638,7 @@
                     ? emptyHTML('Whitelist is empty')
                     : hosts.map((h, i) => `
                         <div class="host-item whitelist-item">
-                            <span class="host-name green">✓ ${esc(h.host_name)}</span>
+                            <span class="host-name green">${esc(h.host_name)}</span>
                             <span class="host-detail">IP: <strong>${esc(h.ip_address)}</strong></span>
                             <span class="host-detail">ADDED: <strong>${esc(formatTimestamp(h.added_date))}</strong></span>
                             <div class="host-actions">
@@ -1754,11 +1740,11 @@
             }
 
             feedList.innerHTML = filtered.map(log => {
-                let icon = '▤', iconClass = 'text-cyan';
-                if (log.action && log.action.includes('APPROVE')) { icon = '✓'; iconClass = 'text-green'; }
-                else if (log.action && log.action.includes('BLOCK')) { icon = '✗'; iconClass = 'text-red'; }
-                else if (log.action && log.action.includes('KILL')) { icon = '⊘'; iconClass = 'text-red'; }
-                else if (log.action && log.action.includes('FLAG')) { icon = '⚑'; iconClass = 'text-yellow'; }
+                let icon = 'INFO', iconClass = 'text-cyan';
+                if (log.action && log.action.includes('APPROVE')) { icon = 'APPROVE'; iconClass = 'text-green'; }
+                else if (log.action && log.action.includes('BLOCK')) { icon = 'BLOCK'; iconClass = 'text-red'; }
+                else if (log.action && log.action.includes('KILL')) { icon = 'KILL'; iconClass = 'text-red'; }
+                else if (log.action && log.action.includes('FLAG')) { icon = 'FLAG'; iconClass = 'text-yellow'; }
                 const timeStr = log.timestamp ? formatTime(log.timestamp) : 'N/A';
                 return `
                     <div class="feed-item">
@@ -2012,7 +1998,7 @@
 
                 const anomalies = [];
                 if (failedLogins > 5) {
-                    anomalies.push({ type: 'HIGH_FAILED_LOGINS', icon: '⚠', message: `${failedLogins} hosts flagged for review` });
+                    anomalies.push({ type: 'HIGH_FAILED_LOGINS', icon: 'ALERT', message: `${failedLogins} hosts flagged for review` });
                 }
 
                 const longSessions = sessions.filter(s => {
@@ -2052,13 +2038,13 @@
 
                 if (anomalies.length > 0) {
                     html += `<div style="margin-top:8px; border-top:1px solid var(--primary-cyan-dim); padding-top:8px;">
-                        <div style="font-size:10px; color:var(--alert-red); font-weight:600; text-transform:uppercase; margin-bottom:6px;">⚠ ANOMALIES DETECTED</div>`;
+                        <div style="font-size:10px; color:var(--alert-red); font-weight:600; text-transform:uppercase; margin-bottom:6px;">ANOMALIES DETECTED</div>`;
                     anomalies.forEach(a => {
                         html += `<div class="anomaly-item"><div class="anomaly-type">${a.icon} ${a.type}</div><div class="anomaly-detail">${esc(a.message)}</div></div>`;
                     });
                     html += `</div>`;
                 } else {
-                    html += `<div style="text-align:center; color:var(--safe-green); margin-top:8px; font-size:10px;">✓ No anomalies detected</div>`;
+                    html += `<div style="text-align:center; color:var(--safe-green); margin-top:8px; font-size:10px;">No anomalies detected</div>`;
                 }
 
                 contentEl.innerHTML = html;
@@ -2118,8 +2104,8 @@
             contentEl.innerHTML = filtered.map(db => {
                 const sessionColor = (db.session_count || 0) > 100 ? 'var(--alert-red)' :
                                      (db.session_count || 0) > 50 ? 'var(--warn-yellow)' : 'var(--safe-green)';
-                const status = (db.session_count || 0) > 150 ? '⚠ HIGH' :
-                               (db.session_count || 0) > 100 ? '⚠ ELEVATED' : '✓ NORMAL';
+                const status = (db.session_count || 0) > 150 ? 'HIGH' :
+                               (db.session_count || 0) > 100 ? 'ELEVATED' : 'NORMAL';
                 const statusColor = (db.session_count || 0) > 150 ? 'var(--alert-red)' :
                                    (db.session_count || 0) > 100 ? 'var(--warn-yellow)' : 'var(--safe-green)';
 
@@ -2137,7 +2123,7 @@
                     <div class="db-activity-card">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
                             <div>
-                                <div style="font-size:12px; font-weight:700; color:var(--primary-cyan);">🗄️ ${esc(db.database_name)}</div>
+                                <div style="font-size:12px; font-weight:700; color:var(--primary-cyan);">${esc(db.database_name)}</div>
                                 <div style="font-size:8px; color:var(--text-dim); margin-top:2px;">${db.newest_session ? esc(formatTimestamp(db.newest_session)) : 'No activity'}</div>
                             </div>
                             <div style="text-align:right;">
@@ -2224,7 +2210,7 @@
                             <div>
                                 <div style="color:var(--text-dim); margin-bottom:3px;">Status</div>
                                 <div style="color:${(dbMetrics?.session_count || 0) > 100 ? 'var(--warn-yellow)' : 'var(--safe-green)'}; font-weight:600;">
-                                    ${(dbMetrics?.session_count || 0) > 150 ? '⚠ HIGH' : (dbMetrics?.session_count || 0) > 100 ? '⚠ ELEVATED' : '✓ NORMAL'}
+                                    ${(dbMetrics?.session_count || 0) > 150 ? 'HIGH' : (dbMetrics?.session_count || 0) > 100 ? 'ELEVATED' : 'NORMAL'}
                                 </div>
                             </div>
                         </div>
@@ -2243,7 +2229,7 @@
                                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                                     <span style="font-size:11px; font-weight:700; color:var(--primary-cyan);">SID #${s.session_id}</span>
                                     <span style="font-size:10px; color:${s.is_whitelisted ? 'var(--safe-green)' : 'var(--warn-yellow)'};">
-                                        ${s.is_whitelisted ? '✓ Whitelisted' : '⚠ Pending'}
+                                        ${s.is_whitelisted ? 'WHITELISTED' : 'PENDING'}
                                     </span>
                                 </div>
                                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:10px; color:var(--text-dim); margin-bottom:6px;">
@@ -2252,7 +2238,7 @@
                                     <div><strong>IP:</strong> ${s.ip_address}</div>
                                     <div><strong>Status:</strong> ${esc(s.status)}</div>
                                 </div>
-                                <div style="font-size:9px; color:var(--text-dim);">📱 ${esc(s.application)}</div>
+                                <div style="font-size:9px; color:var(--text-dim);">${esc(s.application)}</div>
                             </div>
                         `).join('')}
                     `;
