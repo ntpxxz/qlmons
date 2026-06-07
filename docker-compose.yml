@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  hud:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8090"
+    environment:
+      - FLASK_ENV=production
+      - FLASK_PORT=8090
+      - MSSQL_SERVER=${MSSQL_SERVER:-192.168.101.219}
+      - MSSQL_PORT=${MSSQL_PORT:-1433}
+      - MSSQL_USER=${MSSQL_USER}
+      - MSSQL_PASSWORD=${MSSQL_PASSWORD}
+      - MSSQL_DATABASE=${MSSQL_DATABASE:-master}
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hud-network
+
+networks:
+  hud-network:
+    driver: bridge

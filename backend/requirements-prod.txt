@@ -1,0 +1,16 @@
+# Flask Web Framework
+Flask==2.3.3
+Flask-CORS==4.0.0
+
+# Database
+pyodbc
+
+# Configuration
+python-dotenv==1.0.0
+
+# Production Server
+gunicorn==21.2.0
+
+# Optional: For WebSocket support
+# python-socketio==5.9.0
+# python-engineio==4.7.1
