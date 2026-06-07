@@ -10,11 +10,11 @@ services:
     environment:
       - FLASK_ENV=production
       - FLASK_PORT=8090
-      - MSSQL_SERVER=${MSSQL_SERVER:-192.168.101.219}
-      - MSSQL_PORT=${MSSQL_PORT:-1433}
-      - MSSQL_USER=${MSSQL_USER}
-      - MSSQL_PASSWORD=${MSSQL_PASSWORD}
-      - MSSQL_DATABASE=${MSSQL_DATABASE:-master}
+      - SQL_SERVER=${SQL_SERVER:-192.168.101.219}
+      - SQL_PORT=${SQL_PORT:-1433}
+      - SQL_USER=${SQL_USER}
+      - SQL_PASSWORD=${SQL_PASSWORD}
+      - SQL_DATABASE=${SQL_DATABASE:-master}
     volumes:
       - ./logs:/app/logs
     restart: unless-stopped
