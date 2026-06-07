@@ -1413,6 +1413,15 @@
             if (!isoString) return 'N/A';
             return new Date(isoString).toLocaleTimeString('th-TH', { timeZone: TZ });
         }
+        function formatSessionStatus(status) {
+            const statusMap = {
+                'SLEEPING': 'Idle',
+                'RUNNING': 'Active',
+                'SUSPENDED': 'Suspended',
+                'PENDING': 'Pending',
+            };
+            return statusMap[status] || status;
+        }
         function errorHTML(msg) {
             return `<div class="text-red" style="text-align:center;padding:20px;font-family:var(--font-mono);font-size:11px;">${esc(msg)}</div>`;
         }
@@ -2236,7 +2245,7 @@
                                     <div><strong>User:</strong> ${esc(s.login_name)}</div>
                                     <div><strong>Host:</strong> ${esc(s.host_name)}</div>
                                     <div><strong>IP:</strong> ${s.ip_address}</div>
-                                    <div><strong>Status:</strong> ${esc(s.status)}</div>
+                                    <div><strong>Status:</strong> ${esc(formatSessionStatus(s.status))}</div>
                                 </div>
                                 <div style="font-size:9px; color:var(--text-dim);">${esc(s.application)}</div>
                             </div>
