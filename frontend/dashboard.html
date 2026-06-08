@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQL Server Activity Monitor - HUD</title>
+    <title>SQL MON</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap"
         rel="stylesheet">
@@ -93,9 +93,10 @@
         }
 
         .slash-accent {
-            margin: 0 5px;
+            margin: 0 8px;
             color: var(--primary-cyan);
-            font-weight: normal;
+            font-weight: bold;
+            opacity: 0.7;
         }
 
         /* --- Top Navigation --- */
@@ -103,10 +104,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 5px 0;
-            margin-bottom: 10px;
-            border-top: 1px solid var(--primary-cyan-dim);
-            border-bottom: 1px solid var(--primary-cyan-dim);
+            padding: 14px 18px;
+            margin-bottom: 15px;
+            border-top: 3px solid var(--primary-cyan);
+            border-bottom: 3px solid var(--primary-cyan);
+            background: linear-gradient(180deg, rgba(0, 151, 167, 0.12) 0%, rgba(0, 151, 167, 0.06) 100%);
+            box-sizing: border-box;
+            position: relative;
         }
 
         .nav-left,
@@ -114,43 +118,71 @@
         .nav-right {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 10px;
+        }
+
+        .nav-left {
+            flex: 0 0 auto;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding-right: 20px;
+            border-right: 1px solid rgba(0, 151, 167, 0.3);
+        }
+
+        .nav-center {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .nav-right {
+            flex: 0 0 auto;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            padding-left: 20px;
+            border-left: 1px solid rgba(0, 151, 167, 0.3);
         }
 
         .nav-btn {
-            border: 1px solid transparent;
-            padding: 4px 15px;
-            font-size: 13px;
+            border: 2px solid transparent;
+            padding: 10px 25px;
+            font-size: 16px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             cursor: pointer;
             color: var(--text-dim);
-            transition: 0.3s;
             background: none;
+            font-weight: 700;
         }
 
         .nav-btn:hover {
             color: var(--primary-cyan);
+            border-color: var(--primary-cyan);
         }
 
         .nav-btn.active {
-            border-color: var(--primary-cyan);
+            border: 2px solid var(--primary-cyan);
             color: var(--primary-cyan);
-            font-weight: bold;
-            background: rgba(0, 229, 255, 0.1);
+            font-weight: 800;
+            background: rgba(0, 229, 255, 0.2);
+            font-size: 17px;
         }
 
         .icon-box {
-            border: 1px solid var(--primary-cyan-dim);
+            border: 2px solid var(--primary-cyan);
             color: var(--primary-cyan);
-            width: 24px;
-            height: 24px;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+            background: rgba(0, 229, 255, 0.08);
         }
 
         /* --- Main Dashboard Layout --- */
@@ -216,7 +248,7 @@
         .panel-header {
             text-transform: uppercase;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -229,13 +261,15 @@
 
         /* --- Left Column --- */
         .dash-title {
-            padding: 15px;
-            font-size: 16px;
-            font-weight: 600;
+            padding: 20px;
+            font-size: 19px;
+            font-weight: 700;
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 10px;
             color: var(--primary-cyan);
+            background: linear-gradient(180deg, rgba(0, 151, 167, 0.08) 0%, rgba(0, 151, 167, 0.04) 100%);
+            border-bottom: 2px solid var(--primary-cyan);
         }
 
         .dash-title .time-row {
@@ -245,20 +279,23 @@
         }
 
         .dash-title .time-val {
-            font-size: 22px;
+            font-size: 28px;
             font-family: var(--font-mono);
+            font-weight: 700;
         }
 
         .dash-title .time-tz {
-            font-size: 10px;
+            font-size: 12px;
             color: var(--text-dim);
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            font-weight: 600;
         }
 
         .dash-title .date-val {
-            font-size: 11px;
+            font-size: 13px;
             color: var(--text-dim);
             font-family: var(--font-mono);
+            font-weight: 600;
         }
 
         .entities-box {
@@ -270,24 +307,25 @@
 
         .entity-stat {
             text-align: center;
-            padding: 8px 4px;
-            border: 1px solid var(--primary-cyan-dim);
-            background: rgba(0, 229, 255, 0.02);
+            padding: 12px 8px;
+            border: 2px solid var(--primary-cyan-dim);
+            background: rgba(0, 229, 255, 0.05);
         }
 
         .entity-stat h2 {
-            font-size: 28px;
-            font-weight: 500;
-            margin-bottom: 3px;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 6px;
             line-height: 1;
         }
 
         .entity-stat p {
-            font-size: 9px;
-            letter-spacing: 1px;
+            font-size: 11px;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
             color: var(--primary-cyan);
-            line-height: 1.3;
+            line-height: 1.4;
+            font-weight: 600;
         }
 
         .sessions-box {
@@ -311,12 +349,11 @@
             display: flex;
             flex-direction: column;
             font-family: var(--font-mono);
-            font-size: 11px;
-            padding: 8px;
+            font-size: 13px;
+            padding: 10px;
             background: rgba(0, 229, 255, 0.03);
             border: 1px solid rgba(0, 229, 255, 0.15);
             border-left: 3px solid var(--primary-cyan);
-            transition: 0.2s;
             gap: 4px;
         }
 
@@ -358,15 +395,14 @@
 
         .filter-toggle {
             border: 1px solid var(--primary-cyan-dim);
-            padding: 4px 8px;
-            font-size: 10px;
+            padding: 6px 12px;
+            font-size: 12px;
             font-family: var(--font-mono);
             text-transform: uppercase;
             letter-spacing: 1px;
             cursor: pointer;
             background: none;
             color: var(--text-dim);
-            transition: 0.2s;
         }
 
         .filter-toggle:hover {
@@ -384,11 +420,10 @@
             border: 1px solid var(--primary-cyan-dim);
             background: rgba(0, 229, 255, 0.03);
             color: var(--text-main);
-            padding: 4px 6px;
+            padding: 6px 8px;
             font-family: var(--font-mono);
-            font-size: 10px;
+            font-size: 12px;
             text-transform: uppercase;
-            transition: 0.2s;
         }
 
         .filter-input::placeholder {
@@ -414,12 +449,12 @@
         .session-card {
             border: 1px solid var(--primary-cyan-dim);
             background: rgba(0, 229, 255, 0.03);
-            padding: 10px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
             gap: 4px;
             font-family: var(--font-mono);
-            font-size: 11px;
+            font-size: 13px;
         }
 
         .session-card:hover {
@@ -433,7 +468,6 @@
             padding: 10px;
             cursor: pointer;
             font-family: var(--font-mono);
-            transition: all 0.2s ease;
         }
 
         .db-activity-card:hover {
@@ -473,15 +507,14 @@
 
         .tab-btn {
             border: 1px solid var(--primary-cyan-dim);
-            padding: 4px 10px;
-            font-size: 11px;
+            padding: 6px 12px;
+            font-size: 13px;
             font-family: var(--font-mono);
             text-transform: uppercase;
             letter-spacing: 1px;
             cursor: pointer;
             background: none;
             color: var(--text-dim);
-            transition: 0.2s;
             flex: 1;
             text-align: center;
         }
@@ -502,21 +535,18 @@
             color: var(--primary-cyan);
             border-color: var(--primary-cyan);
             background: rgba(0, 229, 255, 0.1);
-            text-shadow: 0 0 5px var(--primary-cyan);
         }
 
         .tab-btn.tab-green.active {
             color: var(--safe-green);
             border-color: var(--safe-green);
             background: rgba(0, 255, 136, 0.08);
-            text-shadow: 0 0 5px var(--safe-green);
         }
 
         .tab-btn.tab-red.active {
             color: var(--alert-red);
             border-color: var(--alert-red);
             background: rgba(255, 51, 102, 0.08);
-            text-shadow: 0 0 5px var(--alert-red);
         }
 
         .tab-content {
@@ -576,12 +606,12 @@
         .host-item {
             border: 1px solid var(--primary-cyan-dim);
             background: rgba(0, 229, 255, 0.03);
-            padding: 10px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
             gap: 6px;
             font-family: var(--font-mono);
-            font-size: 11px;
+            font-size: 13px;
         }
 
         .host-item:hover {
@@ -616,12 +646,10 @@
 
         .host-name.green {
             color: var(--safe-green);
-            text-shadow: 0 0 4px var(--safe-green);
         }
 
         .host-name.red {
             color: var(--alert-red);
-            text-shadow: 0 0 4px var(--alert-red);
         }
 
         .host-detail {
@@ -643,14 +671,13 @@
         /* --- Action Buttons --- */
         .action-btn {
             border: 1px solid currentColor;
-            padding: 3px 12px;
-            font-size: 10px;
+            padding: 5px 15px;
+            font-size: 12px;
             font-family: var(--font-mono);
             text-transform: uppercase;
             letter-spacing: 1px;
             cursor: pointer;
             background: none;
-            transition: 0.2s;
         }
 
         .action-btn:disabled {
@@ -664,7 +691,6 @@
 
         .action-btn.kill:hover:not(:disabled) {
             background: rgba(255, 51, 102, 0.15);
-            box-shadow: 0 0 8px rgba(255, 51, 102, 0.4);
         }
 
         .action-btn.flag {
@@ -673,7 +699,6 @@
 
         .action-btn.flag:hover:not(:disabled) {
             background: rgba(255, 204, 0, 0.12);
-            box-shadow: 0 0 8px rgba(255, 204, 0, 0.4);
         }
 
         .action-btn.done-kill {
@@ -692,7 +717,6 @@
 
         .action-btn.approve:hover:not(:disabled) {
             background: rgba(0, 255, 136, 0.12);
-            box-shadow: 0 0 8px rgba(0, 255, 136, 0.4);
         }
 
         .action-btn.block {
@@ -701,7 +725,6 @@
 
         .action-btn.block:hover:not(:disabled) {
             background: rgba(255, 51, 102, 0.15);
-            box-shadow: 0 0 8px rgba(255, 51, 102, 0.4);
         }
 
         .action-btn.cancel {
@@ -710,7 +733,6 @@
 
         .action-btn.cancel:hover:not(:disabled) {
             background: rgba(255, 204, 0, 0.12);
-            box-shadow: 0 0 8px rgba(255, 204, 0, 0.4);
         }
 
         .action-btn.edit {
@@ -719,7 +741,6 @@
 
         .action-btn.edit:hover:not(:disabled) {
             background: rgba(0, 229, 255, 0.12);
-            box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
         }
 
         .action-btn.done-approve {
@@ -748,18 +769,29 @@
         /* --- Scan button --- */
         .scan-btn {
             color: var(--primary-cyan) !important;
+            border-color: var(--primary-cyan) !important;
+            background: rgba(0, 229, 255, 0.1) !important;
+        }
+
+        .scan-btn:hover {
+            background: rgba(0, 229, 255, 0.2) !important;
         }
 
         .scan-btn.scanning {
             color: var(--warn-yellow) !important;
             border-color: var(--warn-yellow) !important;
+            background: rgba(255, 204, 0, 0.12) !important;
         }
 
         .last-scan {
-            font-size: 11px;
-            color: var(--text-dim);
+            font-size: 14px;
+            color: var(--primary-cyan);
             font-family: var(--font-mono);
-            margin-right: 8px;
+            margin-right: 15px;
+            font-weight: 700;
+            padding: 6px 12px;
+            border: 1px solid var(--primary-cyan);
+            background: rgba(0, 229, 255, 0.08);
         }
 
         .action-btn.remove {
@@ -768,7 +800,6 @@
 
         .action-btn.remove:hover:not(:disabled) {
             background: rgba(255, 51, 102, 0.15);
-            box-shadow: 0 0 8px rgba(255, 51, 102, 0.4);
         }
 
         .action-btn.unblock {
@@ -777,7 +808,6 @@
 
         .action-btn.unblock:hover:not(:disabled) {
             background: rgba(0, 229, 255, 0.12);
-            box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
         }
 
         .action-btn.done-cancel {
@@ -812,12 +842,11 @@
             max-height: 85vh;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 0 30px rgba(0, 229, 255, 0.4);
         }
 
         .modal-header {
             color: var(--primary-cyan);
-            font-size: 16px;
+            font-size: 20px;
             font-weight: 700;
             margin-bottom: 15px;
             text-transform: uppercase;
@@ -832,7 +861,7 @@
             gap: 8px;
             margin-bottom: 15px;
             font-family: var(--font-mono);
-            font-size: 12px;
+            font-size: 14px;
             flex-grow: 1;
             overflow-y: auto;
             padding-right: 5px;
@@ -847,7 +876,7 @@
         .modal-field label {
             color: var(--primary-cyan);
             font-weight: 600;
-            font-size: 10px;
+            font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -858,9 +887,9 @@
             border: 1px solid var(--primary-cyan-dim);
             background: rgba(0, 229, 255, 0.05);
             color: var(--text-main);
-            padding: 6px;
+            padding: 8px;
             font-family: var(--font-mono);
-            font-size: 11px;
+            font-size: 13px;
         }
 
         .modal-field input:focus,
@@ -965,18 +994,16 @@
             padding: 10px;
             margin-bottom: 8px;
             cursor: pointer;
-            transition: 0.3s;
             border-radius: 2px;
         }
 
         .db-card:hover {
             background: rgba(0, 229, 255, 0.08);
             border-color: var(--primary-cyan);
-            box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
         }
 
         .db-card-name {
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 700;
             color: var(--primary-cyan);
             margin-bottom: 6px;
@@ -1050,14 +1077,13 @@
 
         .modal-actions button {
             border: 1px solid currentColor;
-            padding: 8px 20px;
-            font-size: 12px;
+            padding: 10px 25px;
+            font-size: 14px;
             font-family: var(--font-mono);
             text-transform: uppercase;
             letter-spacing: 1.5px;
             cursor: pointer;
             background: none;
-            transition: 0.2s;
             font-weight: 600;
         }
 
@@ -1066,8 +1092,7 @@
         }
 
         .modal-actions .confirm-btn:hover {
-            background: rgba(0, 255, 136, 0.12);
-            box-shadow: 0 0 8px rgba(0, 255, 136, 0.4);
+            background: rgba(0, 255, 136, 0.18);
         }
 
         .modal-actions .cancel-btn {
@@ -1075,8 +1100,83 @@
         }
 
         .modal-actions .cancel-btn:hover {
-            background: rgba(255, 255, 255, 0.05);
-            box-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
+            background: rgba(100, 100, 100, 0.16);
+        }
+
+        /* --- Page Navigation Buttons --- */
+        .page-btn {
+            border: 2px solid var(--primary-cyan);
+            padding: 8px 16px;
+            font-size: 13px;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            background: rgba(0, 229, 255, 0.08);
+            color: var(--primary-cyan);
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: rgba(0, 229, 255, 0.16);
+            color: var(--primary-cyan);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* --- Modal Action Buttons --- */
+        .cancel-btn {
+            border: 2px solid var(--text-dim);
+            padding: 10px 25px;
+            font-size: 14px;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            background: rgba(100, 100, 100, 0.08);
+            color: var(--text-dim);
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .cancel-btn:hover:not(:disabled) {
+            background: rgba(100, 100, 100, 0.16);
+            border-color: var(--text-dim);
+            color: var(--text-main);
+        }
+
+        .confirm-btn {
+            border: 2px solid var(--safe-green);
+            padding: 10px 25px;
+            font-size: 14px;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            background: rgba(0, 255, 136, 0.08);
+            color: var(--safe-green);
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .confirm-btn:hover:not(:disabled) {
+            background: rgba(0, 255, 136, 0.18);
+            border-color: var(--safe-green);
+        }
+
+        .confirm-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         /* Scrollbar */
@@ -1099,10 +1199,9 @@
     <div class="top-nav">
         <div class="nav-left">
             <div class="icon-box">▤</div>
-            <div class="icon-box">△</div>
         </div>
         <div class="nav-center">
-            <button class="nav-btn active">△ SQL_MONITOR // LIVE_HUD</button>
+            <span class="nav text-cyan" style="font-size: 36px;">SERVER MONITORING</span>
         </div>
         <div class="nav-right">
             <span class="last-scan" id="last-scan-time"></span>
@@ -1119,8 +1218,8 @@
         <!-- LEFT COLUMN -->
         <div class="col col-left">
             <div class="hud-border dash-title">
-                <div>SQL_MONITOR <span class="slash-accent">//</span> <span
-                        style="font-size:12px;color:var(--text-dim);">Asia/Bangkok</span></div>
+                <div>SERVER MON <span class="slash-accent">//</span> <span
+                        style="font-size:12px;color:var(--text-dim);">LIVE</span></div>
                 <div class="time-row">
                     <span class="time-val text-cyan" id="current-time">00:00:00</span>
                     <span class="time-tz">UTC+7</span>
@@ -1148,8 +1247,7 @@
             </div>
 
             <div class="hud-border sessions-box">
-                <div class="panel-header"
-                    title="User sessions only (excludes SQL Server system sessions).">
+                <div class="panel-header" title="User sessions only (excludes SQL Server system sessions).">
                     <span style="display:flex; flex-direction:column;">
                         <span>ACTIVE_SESSIONS <span class="text-dim" style="font-size: 9px;">(USER ONLY)</span></span>
                     </span>
@@ -1158,7 +1256,9 @@
 
                 <!-- Top Sessions Preview -->
                 <div style="margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--primary-cyan-dim);">
-                    <div style="font-size:9px; color:var(--primary-cyan); font-weight:600; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.5px;">⭐ QUICK PREVIEW</div>
+                    <div
+                        style="font-size:9px; color:var(--primary-cyan); font-weight:600; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.5px;">
+                        ⭐ QUICK PREVIEW</div>
                     <div class="sessions-list" id="top-sessions">
                         <div class="text-dim" style="text-align:center;padding:15px; font-size:10px;">Loading...</div>
                     </div>
@@ -1179,15 +1279,20 @@
                 <!-- Filter Controls -->
                 <div class="filter-controls" id="filter-controls">
                     <div style="display:flex; gap:6px; margin-bottom:10px;">
-                        <button class="filter-toggle" id="system-toggle" onclick="toggleSystemSessions()" title="Show/hide system sessions (ID ≤ 50)">
+                        <button class="filter-toggle" id="system-toggle" onclick="toggleSystemSessions()"
+                            title="Show/hide system sessions (ID ≤ 50)">
                             ⊙ SYSTEM
                         </button>
                     </div>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-bottom:10px;">
-                        <input type="text" id="filter-app" placeholder="APP NAME..." class="filter-input" onkeyup="applyFilters()">
-                        <input type="text" id="filter-login" placeholder="LOGIN..." class="filter-input" onkeyup="applyFilters()">
-                        <input type="text" id="filter-host" placeholder="HOST..." class="filter-input" onkeyup="applyFilters()">
-                        <input type="text" id="filter-ip" placeholder="IP..." class="filter-input" onkeyup="applyFilters()">
+                        <input type="text" id="filter-app" placeholder="APP NAME..." class="filter-input"
+                            onkeyup="applyFilters()">
+                        <input type="text" id="filter-login" placeholder="LOGIN..." class="filter-input"
+                            onkeyup="applyFilters()">
+                        <input type="text" id="filter-host" placeholder="HOST..." class="filter-input"
+                            onkeyup="applyFilters()">
+                        <input type="text" id="filter-ip" placeholder="IP..." class="filter-input"
+                            onkeyup="applyFilters()">
                     </div>
                     <div style="font-size:9px; color:var(--text-dim); margin-bottom:8px;" id="filter-count">
                         Showing all sessions
@@ -1216,7 +1321,7 @@
                 <div class="tab-nav">
                     <button class="tab-btn tab-cyan active" onclick="switchTab('pending', this)">PENDING</button>
                     <button class="tab-btn tab-green" onclick="switchTab('whitelist', this)">WHITE</button>
-                    <button class="tab-btn tab-red" onclick="switchTab('blacklist', this)">✗ BLACK</button>
+                    <button class="tab-btn tab-red" onclick="switchTab('blacklist', this)">BLACK</button>
                     <button class="tab-btn" onclick="switchTab('log', this)">LOG</button>
                 </div>
 
@@ -1244,13 +1349,17 @@
                 <!-- Tab: Audit Log -->
                 <div class="tab-content" id="tab-log">
                     <div style="display:flex; gap:4px; margin-bottom:8px;">
-                        <input type="text" id="audit-search" placeholder="SEARCH..." class="filter-input" style="flex:1;" onkeyup="searchAuditLog()">
+                        <input type="text" id="audit-search" placeholder="SEARCH..." class="filter-input"
+                            style="flex:1;" onkeyup="searchAuditLog()">
                         <button class="filter-toggle" onclick="toggleAuditFilters()" title="Show filters">⚙</button>
                     </div>
-                    <div id="audit-filters" style="display:none; border-bottom:1px solid var(--primary-cyan-dim); padding-bottom:8px; margin-bottom:8px;">
+                    <div id="audit-filters"
+                        style="display:none; border-bottom:1px solid var(--primary-cyan-dim); padding-bottom:8px; margin-bottom:8px;">
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px;">
-                            <input type="text" id="audit-action" placeholder="ACTION..." class="filter-input" onkeyup="searchAuditLog()">
-                            <input type="text" id="audit-detail" placeholder="DETAIL..." class="filter-input" onkeyup="searchAuditLog()">
+                            <input type="text" id="audit-action" placeholder="ACTION..." class="filter-input"
+                                onkeyup="searchAuditLog()">
+                            <input type="text" id="audit-detail" placeholder="DETAIL..." class="filter-input"
+                                onkeyup="searchAuditLog()">
                         </div>
                     </div>
                     <div class="feed-list" id="audit-feed">
@@ -1266,7 +1375,8 @@
                     <span class="text-dim">LIVE</span>
                 </div>
                 <div style="display:flex; gap:4px; margin-bottom:8px;">
-                    <input type="text" id="activity-filter" placeholder="DATABASE..." class="filter-input" style="flex:1;" onkeyup="filterDatabaseActivity()">
+                    <input type="text" id="activity-filter" placeholder="DATABASE..." class="filter-input"
+                        style="flex:1;" onkeyup="filterDatabaseActivity()">
                     <button class="filter-toggle" data-action="sort-activity" title="Sort">⇅</button>
                 </div>
                 <div class="feed-list" id="activity-list">
@@ -1338,7 +1448,8 @@
             <div class="modal-actions">
                 <button class="cancel-btn" onclick="closeEditModal()">CLOSE</button>
                 <button class="confirm-btn" id="modal-save-btn" onclick="saveHostEdit()">SAVE</button>
-                <button class="action-btn remove" id="modal-delete-btn" onclick="deleteHostFromModal()">⊘ REMOVE</button>
+                <button class="action-btn remove" id="modal-delete-btn" onclick="deleteHostFromModal()">⊘
+                    REMOVE</button>
             </div>
         </div>
     </div>
@@ -1500,8 +1611,8 @@
             const totalCount = sessionData.filter(s => !(!showSystemSessions && s.session_id <= 50)).length;
             document.getElementById('filter-count').textContent =
                 filterCount === totalCount
-                ? `Showing all sessions (${filterCount})`
-                : `Showing ${filterCount} of ${totalCount} sessions`;
+                    ? `Showing all sessions (${filterCount})`
+                    : `Showing ${filterCount} of ${totalCount} sessions`;
 
             if (filteredSessions.length === 0) {
                 sessionsList.innerHTML = emptyHTML('No sessions match filters');
@@ -1532,7 +1643,7 @@
             }).join('');
         }
 
-// ── Load Sessions ─────────────────────────────────────────────────────
+        // ── Load Sessions ─────────────────────────────────────────────────────
         async function loadSessions() {
             try {
                 const response = await fetch('/api/sessions/all-databases');
@@ -1956,7 +2067,7 @@
             } catch (_) { btn.textContent = 'ERROR'; setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 3000); }
         }
 
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 closeEditModal();
             }
@@ -2112,11 +2223,11 @@
 
             contentEl.innerHTML = filtered.map(db => {
                 const sessionColor = (db.session_count || 0) > 100 ? 'var(--alert-red)' :
-                                     (db.session_count || 0) > 50 ? 'var(--warn-yellow)' : 'var(--safe-green)';
+                    (db.session_count || 0) > 50 ? 'var(--warn-yellow)' : 'var(--safe-green)';
                 const status = (db.session_count || 0) > 150 ? 'HIGH' :
-                               (db.session_count || 0) > 100 ? 'ELEVATED' : 'NORMAL';
+                    (db.session_count || 0) > 100 ? 'ELEVATED' : 'NORMAL';
                 const statusColor = (db.session_count || 0) > 150 ? 'var(--alert-red)' :
-                                   (db.session_count || 0) > 100 ? 'var(--warn-yellow)' : 'var(--safe-green)';
+                    (db.session_count || 0) > 100 ? 'var(--warn-yellow)' : 'var(--safe-green)';
 
                 let durationText = '';
                 if (db.oldest_session && db.newest_session) {
@@ -2292,9 +2403,9 @@
                 }
 
                 const statusColor = (dbMetrics.session_count || 0) > 150 ? 'var(--alert-red)' :
-                                    (dbMetrics.session_count || 0) > 100 ? 'var(--warn-yellow)' : 'var(--safe-green)';
+                    (dbMetrics.session_count || 0) > 100 ? 'var(--warn-yellow)' : 'var(--safe-green)';
                 const status = (dbMetrics.session_count || 0) > 150 ? 'HIGH' :
-                               (dbMetrics.session_count || 0) > 100 ? 'ELEVATED' : 'NORMAL';
+                    (dbMetrics.session_count || 0) > 100 ? 'ELEVATED' : 'NORMAL';
 
                 let html = `
                     <div style="margin-bottom:15px; padding:15px; background:rgba(0,151,167,0.08); border-radius:2px;">
@@ -2364,7 +2475,7 @@
         }
 
         // Close modal when clicking outside
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             const dbDetailModal = document.getElementById('db-detail-modal');
             const dbActivityModal = document.getElementById('db-activity-modal');
             if (e.target === dbDetailModal) {
@@ -2376,7 +2487,7 @@
         });
 
         // Close modal with Escape key
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 closeDbDetailModal();
             }
